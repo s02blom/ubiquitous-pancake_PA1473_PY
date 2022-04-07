@@ -3,7 +3,7 @@
 ## Members of the group
 -- Replace with student information --
 * Sofia Blom sofia.blom@student.bth.se
-* Albin Persson alo@bth.se
+* Albin Sellin alsi21@student.bth.se
 * Zeth Danielsson zeda21@student.bth.se
 * Christoffer Lundberg Chel21@student.bth
 * Simon Johansson Sijh21@student.bth.se
