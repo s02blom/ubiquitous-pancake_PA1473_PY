@@ -1,4 +1,4 @@
-# -- Replace with the name of your project --
+# -- Wall E --
 
 ## Members of the group
 -- Replace with student information --
@@ -9,10 +9,9 @@
 * Simon Johansson Sijh21@student.bth.se
 
 ## Project Description
--- Place a short description of the project so that the reader know what the goal of the repository is --
+-- The software for forklift's to be used in a warehouse --
 
 ## User stories
--- Extend the list with user stories. Also use the marking method for complete and incomplete user stories --
 
 - [ ] As a user I want to be able to: Have a truck pickup an item (pallet).
 - [ ] As a user I want to be able to: Have a truck follow a predetermined path. 
