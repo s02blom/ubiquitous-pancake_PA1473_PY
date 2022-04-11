@@ -24,11 +24,11 @@ Crane_motor = Motor(Port.A)
 #Saknar en robot drivebase. Betyder att vin the kan köra robit.run och köra båda motorerna samtidigt.
 
 #Sensor definitions
-Front_button = TouchSensor(Port.S1)
-Light_sensor= ColorSensor(Port.S3)
-Ultrasonic_sensor = UltrasonicSensor(Port.S4)
+touch_sencor = TouchSensor(Port.S1)
+colour_sensor = ColorSensor(Port.S3)
+ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
-robot = DriveBase(Left_drive, Right_drive, wheel_diameter=55.6,axle_track=104)
+robot = DriveBase(Left_drive, Right_drive, wheel_diameter=55.6,axle_track=104) #SB. Stämmer wheel och axle för robotten vi har just nu?
 
 # Constants
 LINE_REFLECTION = 4
@@ -43,9 +43,8 @@ TURN_RATE_AMPLIFIER = 3
 #Here is where you code starts
 
 while(True):
-    deviation = line_sensor.reflection() - threshold
-
+    #Kod för att följa linje
+    deviation = colour_sensor.reflection() - threshold
     turn_rate = TURN_RATE_AMPLIFIER * deviation
-
     robot.drive(DRIVE_SPEED, turn_rate)
     
