@@ -28,7 +28,24 @@ Front_button = TouchSensor(Port.S1)
 Light_sensor= ColorSensor(Port.S3)
 Ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
+robot = DriveBase(Left_drive, Right_drive, wheel_diameter=55.6,axle_track=104)
+
+# Constants
+LINE_REFLECTION = 4
+OFF_LINE_REFLECTION = 60
+
+threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
+
+DRIVE_SPEED = 75
+
+TURN_RATE_AMPLIFIER = 3
+
 #Here is where you code starts
 
 while(True):
-    print()
+    deviation = line_sensor.reflection() - threshold
+
+    turn_rate = TURN_RATE_AMPLIFIER * deviation
+
+    robot.drive(DRIVE_SPEED, turn_rate)
+    
