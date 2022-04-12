@@ -62,15 +62,20 @@ def pick_up_pallet_on_ground() -> None:
     """
     is_pallet_on_properly = False
     drive_speed_crawl = 30
+    stop_after_time = 3000 #If the time to pick up the item exceeds 3 seconds the pick-up will fail.
     drive_forward_time = time.perf_counter()
-    while(not is_pallet_on_properly):
+    
+    while(not is_pallet_on_properly and (time.perf_counter -drive_forward_time) <stop_after_time):
         is_pallet_on_properly = touch_sensor.pressed()
         robot.drive(drive_speed_crawl)
     drive_forward_stop_time = time.perf_counter()
+    if not is_pallet_on_properly:
+        print("Picking up failed.")
+    else:
+        Crane_motor.run_angle(CRANE_SPEED, GROUND_LIFT_ANGLE)
     time_to_back_out = drive_forward_stop_time -  drive_forward_time
-    distance_to_back_out = (time_to_back_out * drive_speed_crawl) /1000 #(ms *mm/s)/m
-    Crane_motor.run_angle(CRANE_SPEED, GROUND_LIFT_ANGLE)
-    robot.straight(distance_to_back_out)
+    distance_to_back_out = (time_to_back_out * drive_speed_crawl) /1000 #(ms *mm/s)/m    
+    robot.straight(distance_to_back_out)    
     #Sväng om?
 
 while(True):
