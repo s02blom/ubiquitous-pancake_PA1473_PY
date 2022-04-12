@@ -24,11 +24,11 @@ Crane_motor = Motor(Port.A)
 #Saknar en robot drivebase. Betyder att vin the kan köra robit.run och köra båda motorerna samtidigt.
 
 #Sensor definitions
-touch_sencor = TouchSensor(Port.S1)
+touch_sensor = TouchSensor(Port.S1)
 colour_sensor = ColorSensor(Port.S3)
 ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
-robot = DriveBase(Left_drive, Right_drive, wheel_diameter=55.6,axle_track=104) #SB. Stämmer wheel och axle för robotten vi har just nu?
+robot = DriveBase(Left_drive, Right_drive, wheel_diameter=55.6,axle_track=104) #SB. Stämmer wheel och axle för roboten vi har just nu?
 
 # Constants
 LINE_REFLECTION = 4
@@ -37,17 +37,43 @@ OFF_LINE_REFLECTION = 60
 threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
 
 DRIVE_SPEED = 75
+DRIVE_WITH_PALLET = 50
+CRANE_SPEED = 50
 
 TURN_RATE_AMPLIFIER = 3
 
+GROUND_LIFT_ANGLE = 200
+
 #Here is where you code starts
 
-def driveForward() -> None:
+def drive_forward() -> None:
     deviation = colour_sensor.reflection() - threshold
     turn_rate = TURN_RATE_AMPLIFIER * deviation
     robot.drive(DRIVE_SPEED, turn_rate)
 
+def pick_up_pallet_on_ground() -> None:
+    """
+    Antagande:
+    En pallet har redan hittats och 
+    Vi står med nosen pekande på den
+    Resultat:
+    Palleten är upplockad
+    Vi har backat tillbacka till start position. 
+    """
+    is_pallet_on_properly = False
+    drive_speed_crawl = 30
+    drive_forward_time = time.perf_counter()
+    while(not is_pallet_on_properly):
+        is_pallet_on_properly = touch_sensor.pressed()
+        robot.drive(drive_speed_crawl)
+    drive_forward_stop_time = time.perf_counter()
+    time_to_back_out = drive_forward_stop_time -  drive_forward_time
+    distance_to_back_out = (time_to_back_out * drive_speed_crawl) /1000 #(ms *mm/s)/m
+    Crane_motor.run_angle(CRANE_SPEED, GROUND_LIFT_ANGLE)
+    robot.straight(distance_to_back_out)
+    #Sväng om?
+
 while(True):
     #Kod för att följa linje
-    driveForward()
+    drive_forward()
     
