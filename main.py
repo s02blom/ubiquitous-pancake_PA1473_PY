@@ -42,9 +42,12 @@ TURN_RATE_AMPLIFIER = 3
 
 #Here is where you code starts
 
-while(True):
-    #Kod för att följa linje
+def driveForward() -> None:
     deviation = colour_sensor.reflection() - threshold
     turn_rate = TURN_RATE_AMPLIFIER * deviation
     robot.drive(DRIVE_SPEED, turn_rate)
+
+while(True):
+    #Kod för att följa linje
+    driveForward()
     
