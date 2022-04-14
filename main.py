@@ -44,6 +44,14 @@ TURN_RATE_AMPLIFIER = 3
 
 GROUND_LIFT_ANGLE = 200
 
+#Colour
+brown_warehouse = 0
+red_warehouse = 0
+blue_warehouse = 0
+green_to_pickup_and_deliver = 0
+olive_for_center_circle = 0
+purple_in_deliver = 0
+
 #Here is where you code starts
 
 def drive_forward() -> None:
