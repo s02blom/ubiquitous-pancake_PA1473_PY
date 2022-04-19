@@ -38,11 +38,11 @@ threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
 
 DRIVE_SPEED = 75
 DRIVE_WITH_PALLET = 50
-CRANE_SPEED = 50
+CRANE_SPEED = 200
 
 TURN_RATE_AMPLIFIER = 3
 
-GROUND_LIFT_ANGLE = 200
+GROUND_LIFT_ANGLE = 50
 
 #Colour
 brown_warehouse = 0
@@ -115,24 +115,35 @@ def pick_up_pallet_on_ground() -> None:
     Vi har backat tillbacka till start position. 
     """
     is_pallet_on_properly = False
-    drive_speed_crawl = 30
-    stop_after_time = 3000 #If the time to pick up the item exceeds 3 seconds the pick-up will fail.
+    drive_speed_crawl = 60
+    stop_after_time = 6 #If the time to pick up the item exceeds 3 seconds the pick-up will fail.
     drive_forward_time = time.perf_counter()
+    robot.reset()
     
-    while(not is_pallet_on_properly and (time.perf_counter -drive_forward_time) <stop_after_time):
+    while(not is_pallet_on_properly and (time.perf_counter() -drive_forward_time) <stop_after_time):
+        print(time.perf_counter() -drive_forward_time)
         is_pallet_on_properly = touch_sensor.pressed()
-        robot.drive(drive_speed_crawl)
+        robot.drive(-drive_speed_crawl,0)
     drive_forward_stop_time = time.perf_counter()
     if not is_pallet_on_properly:
         print("Picking up failed.")
     else:
-        Crane_motor.run_angle(CRANE_SPEED, GROUND_LIFT_ANGLE)
+        
+        print("picking up")
+        Crane_motor.run_angle(-CRANE_SPEED, GROUND_LIFT_ANGLE)
     time_to_back_out = drive_forward_stop_time -  drive_forward_time
-    distance_to_back_out = (time_to_back_out * drive_speed_crawl) /1000 #(ms *mm/s)/m    
-    robot.straight(distance_to_back_out)    
+    distance_to_back_out = (time_to_back_out * drive_speed_crawl) /1000 #(ms *mm/s)/m
+    distance_to_back_out = robot.distance()
+    print(distance_to_back_out)    
+    robot.straight(-distance_to_back_out)    
     #Sväng om?
+def reset_crane():
+    Crane_motor.run_until_stalled(CRANE_SPEED)
 
 while(True):
     #Kod för att följa linje
-    drive_forward()
-    
+    #drive_forward()
+    reset_crane()
+    pick_up_pallet_on_ground()
+    print("Waiting")
+    wait(10000)
