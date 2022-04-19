@@ -54,10 +54,56 @@ purple_in_deliver = 0
 
 #Here is where you code starts
 
-def drive_forward() -> None:
+def select_path(path_color):
+    """
+    Antagande:
+    Trucken befinner sig på den gula mutt-ringen.
+    Resultat:
+    Trucken hittar vägen av önskad färg och svänger mot den.
+    """
+    while colour_sensor.color() != path_color:
+        drive_forward()
+    align_left()
+    
+def drive_to_destination():
+    """
+    Antagande:
+    Trucken har hittat önskad väg och är justerad efter dess riktning.
+    Resultat:
+    Trucken kör tills den når den svarta ytan vid slutet av vägen.
+    """
+    while colour_sensor.color() != Color.BLACK:
+        drive_forward(precise = True)
+    robot.drive(0, 0)
+
+def return_to_circle():
+    """
+    Antagande:
+    Trucken står på den svarta ytan i ett lager med nosen innåt i lagret.
+    Resultat:
+    Trucken svänger ut och kör tillbaka till mitt-cirkeln.
+    """
+    while colour_sensor.color() != Color.YELLOW:
+        if colour_sensor.color() == Color.BLACK:
+            robot.drive(0, 45)
+            wait(3000)
+        else:
+            drive_forward(precise = True)
+    align_left()
+
+def align_left():
+    robot.drive(0, -45)
+    wait(2100)
+    robot.drive(0, 0)
+
+def drive_forward(precise = False) -> None:
     deviation = colour_sensor.reflection() - threshold
     turn_rate = TURN_RATE_AMPLIFIER * deviation
-    robot.drive(DRIVE_SPEED, turn_rate)
+    if precise:
+        speed = DRIVE_SPEED / (0.8 + abs(deviation) * 0.06)
+    else:
+        speed = DRIVE_SPEED
+    robot.drive(speed, turn_rate)
 
 def pick_up_pallet_on_ground() -> None:
     """
