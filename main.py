@@ -18,8 +18,8 @@ import time
 ev3 = EV3Brick()
 
 #Motor definitions
-Left_drive = Motor(Port.C)
-Right_drive = Motor(Port.B)
+Left_drive = Motor(Port.C, positive_direction=Direction.COUNTERCLOCKWISE)
+Right_drive = Motor(Port.B, positive_direction=Direction.COUNTERCLOCKWISE)
 Crane_motor = Motor(Port.A)
 #Saknar en robot drivebase. Betyder att vin the kan köra robit.run och köra båda motorerna samtidigt.
 
@@ -28,11 +28,11 @@ touch_sensor = TouchSensor(Port.S1)
 colour_sensor = ColorSensor(Port.S3)
 ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
-robot = DriveBase(Left_drive, Right_drive, wheel_diameter=55.6,axle_track=104) #SB. Stämmer wheel och axle för roboten vi har just nu?
+robot = DriveBase(Left_drive, Right_drive, wheel_diameter=47, axle_track=128) #SB. Stämmer wheel och axle för roboten vi har just nu?
 
 # Constants
-LINE_REFLECTION = 4
-OFF_LINE_REFLECTION = 60
+LINE_REFLECTION = 60
+OFF_LINE_REFLECTION = 80
 
 threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
 
