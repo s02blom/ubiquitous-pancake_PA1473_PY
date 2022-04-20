@@ -47,10 +47,10 @@ GROUND_LIFT_ANGLE = 50
 driving_with_pallet = False
 
 #Colour
-brown_warehouse = 0
-red_warehouse = 0
-blue_warehouse = 0
-green_to_pickup_and_deliver = 0
+brown_warehouse = Color.BROWN
+red_warehouse = Color.RED
+blue_warehouse = Color.BLUE
+green_to_pickup_and_deliver = Color.GREEN
 olive_for_center_circle = 0
 purple_in_deliver = 0
 
@@ -102,13 +102,13 @@ def drive_forward(precise = False) -> None:
     deviation = colour_sensor.reflection() - threshold
     turn_rate = TURN_RATE_AMPLIFIER * deviation
     if driving_with_pallet == True:
-        DRIVE_SPEED = 40
+        drive_speed = 40
     else:
-        DRIVE_SPEED = 75
+        drive_speed = 75
     if precise:
-        speed = DRIVE_SPEED / (0.8 + abs(deviation) * 0.06)
+        speed = drive_speed / (0.8 + abs(deviation) * 0.06)
     else:
-        speed = DRIVE_SPEED
+        speed = drive_speed
     robot.drive(speed, turn_rate)
 
 def pick_up_pallet_on_ground() -> None:
@@ -127,21 +127,19 @@ def pick_up_pallet_on_ground() -> None:
     robot.reset()
     
     while(not is_pallet_on_properly and (time.perf_counter() -drive_forward_time) <stop_after_time):
-        print(time.perf_counter() -drive_forward_time)
         is_pallet_on_properly = touch_sensor.pressed()
-        robot.drive(-drive_speed_crawl,0)
+        robot.drive(drive_speed_crawl, 0)
     drive_forward_stop_time = time.perf_counter()
+    robot.drive(0, 0)
     if not is_pallet_on_properly:
         print("Picking up failed.")
     else:
-        
         print("picking up")
         Crane_motor.run_angle(-CRANE_SPEED, GROUND_LIFT_ANGLE)
         driving_with_pallet = True
     time_to_back_out = drive_forward_stop_time -  drive_forward_time
     distance_to_back_out = (time_to_back_out * drive_speed_crawl) /1000 #(ms *mm/s)/m
     distance_to_back_out = robot.distance()
-    print(distance_to_back_out)    
     robot.straight(-distance_to_back_out)    
     #Sväng om?
 def reset_crane():
