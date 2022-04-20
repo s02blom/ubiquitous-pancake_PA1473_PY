@@ -44,6 +44,8 @@ TURN_RATE_AMPLIFIER = 3
 
 GROUND_LIFT_ANGLE = 50
 
+driving_with_pallet = False
+
 #Colour
 brown_warehouse = 0
 red_warehouse = 0
@@ -99,6 +101,10 @@ def align_left():
 def drive_forward(precise = False) -> None:
     deviation = colour_sensor.reflection() - threshold
     turn_rate = TURN_RATE_AMPLIFIER * deviation
+    if driving_with_pallet == True:
+        DRIVE_SPEED = 40
+    else:
+        DRIVE_SPEED = 75
     if precise:
         speed = DRIVE_SPEED / (0.8 + abs(deviation) * 0.06)
     else:
@@ -131,6 +137,7 @@ def pick_up_pallet_on_ground() -> None:
         
         print("picking up")
         Crane_motor.run_angle(-CRANE_SPEED, GROUND_LIFT_ANGLE)
+        driving_with_pallet = True
     time_to_back_out = drive_forward_stop_time -  drive_forward_time
     distance_to_back_out = (time_to_back_out * drive_speed_crawl) /1000 #(ms *mm/s)/m
     distance_to_back_out = robot.distance()
