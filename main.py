@@ -40,6 +40,7 @@ DRIVE_SPEED = 75
 DRIVE_WITH_PALLET = 50
 CRANE_SPEED = 200
 STOP_DISTANCE = 350
+PALET_DISTANCE = 500
 
 TURN_RATE_AMPLIFIER = 3
 
@@ -111,6 +112,30 @@ def drive_forward(precise = False) -> None:
     else:
         speed = drive_speed
     robot.drive(speed, turn_rate)
+
+def find_pallet(is_pallet_on_ground: bool) -> None:
+    """
+    Antagande:
+    Vi står i varuhuset
+    Resultat:
+    Vi är redo att köra pickup pallet, med eller utan höjd
+    """
+    while ultrasonic_sensor.distance() > PALET_DISTANCE:
+        #Sväng 90 vänster
+        #Kör en bil längd
+        #Sväng 90 höger
+        #Loop
+
+    if is_pallet_on_ground:
+        pick_up_pallet_on_ground()
+    else: 
+        #pick_up
+        pick_up_pallet_in_air()
+
+def pick_up_pallet_in_air() -> None:
+    Crane_motor.run_angle(CRANE_SPEED, 200)
+    pick_up_pallet_on_ground()
+    Crane_motor.run_angle(-CRANE_SPEED, 200)
 
 def pick_up_pallet_on_ground() -> None:
     """
