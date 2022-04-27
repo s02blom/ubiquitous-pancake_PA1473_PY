@@ -121,6 +121,10 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
     Vi är redo att köra pickup pallet, med eller utan höjd
     """
     while ultrasonic_sensor.distance() > PALET_DISTANCE:
+        
+        robot.turn(90)
+        robot.drive(150,0)
+        robot.turn(-90)
         #Sväng 90 vänster
         #Kör en bil längd
         #Sväng 90 höger
