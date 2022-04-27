@@ -39,7 +39,7 @@ threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
 DRIVE_SPEED = 75
 DRIVE_WITH_PALLET = 50
 CRANE_SPEED = 200
-STOP_DISTANCE = 500
+STOP_DISTANCE = 350
 
 TURN_RATE_AMPLIFIER = 3
 
@@ -148,11 +148,13 @@ def reset_crane():
 
 while(True):
     #Kod för att följa linje
-    #drive_forward()
-    if ultrasonic_sensor.presence() and ultrasonic_sensor.distance > STOP_DISTANCE:
+    #drive_forward()    
+    if ultrasonic_sensor.presence() and ultrasonic_sensor.distance() > STOP_DISTANCE:
         #Do stuff like drive forward. There is no robot in front of you. 
         print()
-    reset_crane()
-    pick_up_pallet_on_ground()
-    print("Waiting")
-    wait(10000)
+    else:
+        print()
+    #reset_crane()
+    #pick_up_pallet_on_ground()
+    #print("Waiting")
+    wait(10)
