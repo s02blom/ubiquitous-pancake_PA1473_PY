@@ -57,6 +57,8 @@ green_to_pickup_and_deliver = Color.GREEN
 olive_for_center_circle = 0
 purple_in_deliver = 0
 
+colors = {"red": (75,25,38),"blue":(11,27,48),"yellow line": (57,49,11),"Brown":(14,9,12),"Black":(3,3,2),"Purple":(14,12,47),"Middle Circle": (17,19,13), "Green": (10,44,21),"White": (71,86,100)}
+
 #Here is where you code starts
 def print_on_screen(text):
     ev3.screen.clear()
@@ -72,7 +74,7 @@ def print_on_screen(text):
     ev3.screen.print(str(text))
 
 def select_path(path_color):
-    print_on_screen(f'Seachring for {path_color} path.')
+    # print_on_screen(f'Seachring for {path_color} path.')
     """
     Antagande:
     Trucken befinner sig på den gula mutt-ringen.
@@ -124,7 +126,7 @@ def drive_forward(precise = True) -> None:
     drive_speed = 75
     if precise:
         # speed = drive_speed / (0.8 + abs(deviation) * 0.06)
-        speed = drive_speed * max(0, 1 - (abs(turn_rate) * 2 / DESIRED_TURN_RATE))
+        speed = drive_speed * max(0.1, 1 - (abs(turn_rate) / DESIRED_TURN_RATE))
     else:
         speed = drive_speed
     robot.drive(speed, turn_rate)
@@ -196,8 +198,7 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     while(True): 
-        robot.turn(1)
-        wait(10)
+        print(colour_sensor.rgb())
         
 def get_color(color = "svart"):
     while (True):
