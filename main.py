@@ -67,7 +67,12 @@ def select_color():
     return color
 
 
+def print_on_screen(text):
+    ev3.screen.clear()
+    ev3.screen.print(str(text))
+
 def select_path(path_color):
+    print_on_screen(f'Seachring for {path_color} path.')
     """
     Antagande:
     Trucken befinner sig på den gula mutt-ringen.
@@ -79,6 +84,7 @@ def select_path(path_color):
     align_left()
     
 def drive_to_destination():
+    # print_on_screen(f'Driving to {path_color} warehouse.')
     """
     Antagande:
     Trucken har hittat önskad väg och är justerad efter dess riktning.
@@ -90,6 +96,7 @@ def drive_to_destination():
     robot.drive(0, 0)
 
 def return_to_circle():
+    print_on_screen('Returning to the circle.')
     """
     Antagande:
     Trucken står på den svarta ytan i ett lager med nosen innåt i lagret.
@@ -124,6 +131,7 @@ def drive_forward(precise = False) -> None:
     robot.drive(speed, turn_rate)
 
 def find_pallet(is_pallet_on_ground: bool) -> None:
+    print_on_screen('Searching for a pallet.')
     """
     Antagande:
     Vi står i varuhuset
@@ -152,6 +160,7 @@ def pick_up_pallet_in_air() -> None:
     Crane_motor.run_angle(-CRANE_SPEED, 200)
 
 def pick_up_pallet_on_ground() -> None:
+    print_on_screen('Picking up the found pallet.')
     """
     Antagande:
     En pallet har redan hittats och 
