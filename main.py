@@ -7,8 +7,9 @@ from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
 from pybricks.media.ev3dev import SoundFile, ImageFile
+from pybricks.messaging import BluetoothMailboxClient,TextMailbox
 import time
-
+import _thread
 
 # This program requires LEGO EV3 MicroPython v2.0 or higher.
 # Click "Open user guide" on the EV3 extension tab for more information.
@@ -21,7 +22,6 @@ ev3 = EV3Brick()
 Left_drive = Motor(Port.C, positive_direction=Direction.COUNTERCLOCKWISE)
 Right_drive = Motor(Port.B, positive_direction=Direction.COUNTERCLOCKWISE)
 Crane_motor = Motor(Port.A)
-#Saknar en robot drivebase. Betyder att vin the kan köra robit.run och köra båda motorerna samtidigt.
 
 #Sensor definitions
 touch_sensor = TouchSensor(Port.S1)
@@ -31,8 +31,8 @@ ultrasonic_sensor = UltrasonicSensor(Port.S4)
 robot = DriveBase(Left_drive, Right_drive, wheel_diameter=47, axle_track=128) #SB. Stämmer wheel och axle för roboten vi har just nu?
 
 # Constants
-LINE_REFLECTION = 60
-OFF_LINE_REFLECTION = 80
+LINE_REFLECTION = 67
+OFF_LINE_REFLECTION = 84
 
 threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
 
@@ -40,7 +40,7 @@ DRIVE_SPEED = 75
 DRIVE_WITH_PALLET = 50
 CRANE_SPEED = 200
 
-TURN_RATE_AMPLIFIER = 3
+TURN_RATE_AMPLIFIER = 5
 
 GROUND_LIFT_ANGLE = 50
 
@@ -55,6 +55,14 @@ olive_for_center_circle = 0
 purple_in_deliver = 0
 
 #Here is where you code starts
+def print_on_screen(text):
+    ev3.screen.clear()
+    ev3.screen.print(str(text))
+
+def select_color():
+    color = input("Please select a color? ")
+    return color
+
 
 def select_path(path_color):
     """
@@ -145,10 +153,25 @@ def pick_up_pallet_on_ground() -> None:
 def reset_crane():
     Crane_motor.run_until_stalled(CRANE_SPEED)
 
-while(True):
-    #Kod för att följa linje
-    #drive_forward()
-    reset_crane()
-    pick_up_pallet_on_ground()
-    print("Waiting")
-    wait(10000)
+# Main thread for driving etc
+def main():
+    while(True): 
+        robot.turn(1)
+        wait(10)
+        
+def get_color(color = "svart"):
+    while (True):
+        color = input("Choose color... ")
+        if str(color).lower() == "red":
+            print(color)
+        elif str(color).lower() == "blue":
+            print(color)
+        else:
+            print("No color matching input")
+
+
+_thread.start_new_thread(main,(),)
+_thread.start_new_thread(get_color,(),)
+
+while True:
+    pass
