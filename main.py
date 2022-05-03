@@ -39,8 +39,11 @@ threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
 DRIVE_SPEED = 75
 DRIVE_WITH_PALLET = 50
 CRANE_SPEED = 200
+STOP_DISTANCE = 350
+PALET_DISTANCE = 500
 
-TURN_RATE_AMPLIFIER = 5
+TURN_RATE_AMPLIFIER = 3
+TURN_RATE = -20
 
 GROUND_LIFT_ANGLE = 50
 
@@ -106,18 +109,56 @@ def align_left():
     wait(2100)
     robot.drive(0, 0)
 
-def drive_forward(precise = False) -> None:
-    deviation = colour_sensor.reflection() - threshold
-    turn_rate = TURN_RATE_AMPLIFIER * deviation
-    if driving_with_pallet == True:
-        drive_speed = 40
-    else:
-        drive_speed = 75
+# def drive_forward(precise = False) -> None:
+#     deviation = colour_sensor.reflection() - threshold
+#     turn_rate = TURN_RATE_AMPLIFIER * deviation
+#     if driving_with_pallet == True:
+#         drive_speed = 40
+#     else:
+#         drive_speed = 75
+#     if precise:
+#         speed = drive_speed / (0.8 + abs(deviation) * 0.06)
+#     else:
+#         speed = drive_speed
+#     robot.drive(speed, turn_rate)
+
+def drive_forward(precise = True) -> None:
+    off_line = colour_sensor.color() == Color.WHITE
+    turn_rate = TURN_RATE
+    if off_line:
+        turn_rate = -TURN_RATE
+    speed = DRIVE_SPEED
     if precise:
-        speed = drive_speed / (0.8 + abs(deviation) * 0.06)
-    else:
-        speed = drive_speed
+        speed = DRIVE_SPEED / 2
     robot.drive(speed, turn_rate)
+
+def find_pallet(is_pallet_on_ground: bool) -> None:
+    """
+    Antagande:
+    Vi står i varuhuset
+    Resultat:
+    Vi är redo att köra pickup pallet, med eller utan höjd
+    """
+    while ultrasonic_sensor.distance() > PALET_DISTANCE:
+        
+        robot.turn(90)
+        robot.straight(150)
+        robot.turn(-90)
+        #Sväng 90 vänster
+        #Kör en bil längd
+        #Sväng 90 höger
+        #Loop
+
+    if is_pallet_on_ground:
+        pick_up_pallet_on_ground()
+    else: 
+        #pick_up
+        pick_up_pallet_in_air()
+
+def pick_up_pallet_in_air() -> None:
+    Crane_motor.run_angle(CRANE_SPEED, 200)
+    pick_up_pallet_on_ground()
+    Crane_motor.run_angle(-CRANE_SPEED, 200)
 
 def pick_up_pallet_on_ground() -> None:
     """
