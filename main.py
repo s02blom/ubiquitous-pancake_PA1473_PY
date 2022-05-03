@@ -57,7 +57,17 @@ green_to_pickup_and_deliver = Color.GREEN
 olive_for_center_circle = 0
 purple_in_deliver = 0
 
-colors = {"red": (75,25,38),"blue":(11,27,48),"yellow line": (57,49,11),"Brown":(14,9,12),"Black":(3,3,2),"Purple":(14,12,47),"Middle Circle": (17,19,13), "Green": (10,44,21),"White": (71,86,100)}
+COLORS = {
+    "red": (75,25,38),
+    "blue": (11,27,48),
+    "yellow line": (57,49,11),
+    "Brown": (14,9,12),
+    "Black": (3,3,2),
+    "Purple": (14,12,47),
+    "Middle Circle": (17,19,13),
+    "Green": (10,44,21),
+    "White": (71,86,100)
+}
 
 #Here is where you code starts
 def print_on_screen(text):
@@ -68,10 +78,34 @@ def select_color():
     color = input("Please select a color? ")
     return color
 
-
 def print_on_screen(text):
     ev3.screen.clear()
     ev3.screen.print(str(text))
+
+def classify_color(rgb_in):
+    OFFSET = 5
+    match_r = []
+    match_g = []
+    match_b = []
+    r_in, g_in, b_in = rgb_in
+    for color_key in COLORS.keys():
+        r, g, b = COLORS[color_key]
+        if r_in < (r + OFFSET) and r_in > (r - OFFSET):
+            match_r.append(color_key)
+        if g_in < (g + OFFSET) and g_in > (g - OFFSET):
+            match_g.append(color_key)
+        if b_in < (b + OFFSET) and b_in > (b - OFFSET):
+            match_b.append(color_key)
+    matches = []
+    for color_key in COLORS.keys():
+        if color_key in match_r and color_key in match_g and color_key in match_b:
+            matches.append(color_key)
+    if len(matches) == 0:
+        return None
+    return matches
+
+
+
 
 def select_path(path_color):
     # print_on_screen(f'Seachring for {path_color} path.')
