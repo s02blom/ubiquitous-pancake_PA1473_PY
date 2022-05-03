@@ -134,7 +134,7 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
     while ultrasonic_sensor.distance() > PALET_DISTANCE:
         
         robot.turn(90)
-        robot.drive(150,0)
+        robot.straight(150)
         robot.turn(-90)
         #Sväng 90 vänster
         #Kör en bil längd
