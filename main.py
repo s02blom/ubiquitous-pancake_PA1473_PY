@@ -42,8 +42,8 @@ CRANE_SPEED = 200
 STOP_DISTANCE = 350
 PALET_DISTANCE = 500
 
-TURN_RATE_AMPLIFIER = 3
-TURN_RATE = -20
+DESIRED_TURN_RATE = 90
+TURN_RATE_AMPLIFIER = DESIRED_TURN_RATE / ((OFF_LINE_REFLECTION - LINE_REFLECTION) / 2)
 
 GROUND_LIFT_ANGLE = 50
 
@@ -109,27 +109,18 @@ def align_left():
     wait(2100)
     robot.drive(0, 0)
 
-# def drive_forward(precise = False) -> None:
-#     deviation = colour_sensor.reflection() - threshold
-#     turn_rate = TURN_RATE_AMPLIFIER * deviation
-#     if driving_with_pallet == True:
-#         drive_speed = 40
-#     else:
-#         drive_speed = 75
-#     if precise:
-#         speed = drive_speed / (0.8 + abs(deviation) * 0.06)
-#     else:
-#         speed = drive_speed
-#     robot.drive(speed, turn_rate)
-
-def drive_forward(precise = True) -> None:
-    off_line = colour_sensor.color() == Color.WHITE
-    turn_rate = TURN_RATE
-    if off_line:
-        turn_rate = -TURN_RATE
-    speed = DRIVE_SPEED
+def drive_forward(precise = False) -> None:
+    deviation = max(OFF_LINE_REFLECTION, colour_sensor.reflection()) - threshold
+    turn_rate = TURN_RATE_AMPLIFIER * deviation
+    if driving_with_pallet == True:
+        drive_speed = 40
+    else:
+        drive_speed = 75
     if precise:
-        speed = DRIVE_SPEED / 2
+        # speed = drive_speed / (0.8 + abs(deviation) * 0.06)
+        speed = drive_speed * (1 - turn_rate / DESIRED_TURN_RATE)
+    else:
+        speed = drive_speed
     robot.drive(speed, turn_rate)
 
 def find_pallet(is_pallet_on_ground: bool) -> None:
