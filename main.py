@@ -184,10 +184,10 @@ def follow_color(color_rgb):
     drive_speed = 75
     if driving_with_pallet == True:
         drive_speed = 40
-    turn_rate = 40
+    turn_rate = 25
     if color_rgb == classify_color(colour_sensor.rgb())[0]:
-        turn_rate = -120
-        drive_speed = -drive_speed
+        turn_rate = -150
+        drive_speed = -100
     robot.drive(drive_speed, turn_rate)
 
 def find_pallet(is_pallet_on_ground: bool) -> None:
