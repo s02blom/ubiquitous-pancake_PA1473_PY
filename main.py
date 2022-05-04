@@ -96,7 +96,7 @@ def print_on_screen(text):
     ev3.screen.print(str(text))
 
 def classify_color(rgb_in):
-    OFFSET = 10
+    OFFSET = 13
     match_r = []
     match_g = []
     match_b = []
@@ -181,13 +181,17 @@ def drive_forward(precise = True) -> None:
     robot.drive(speed, turn_rate)
 
 def follow_color(color_rgb):
-    drive_speed = 75
+    drive_speed = 100
     if driving_with_pallet == True:
         drive_speed = 40
-    turn_rate = 25
-    if color_rgb == classify_color(colour_sensor.rgb())[0]:
-        turn_rate = -150
-        drive_speed = -100
+    turn_rate = 35
+    while color_rgb in classify_color(colour_sensor.rgb()):
+        turn_rate = 0
+        drive_speed = 0
+        robot.turn(-20)
+        if color_rgb in classify_color(colour_sensor.rgb()):
+            robot.turn(-45)
+            robot.straight(-70)
     robot.drive(drive_speed, turn_rate)
 
 def find_pallet(is_pallet_on_ground: bool) -> None:
@@ -281,7 +285,7 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     while(True): 
-        drive_forward()
+        follow_color("red")
         
 def get_color(color = "svart"):
     while (True):
