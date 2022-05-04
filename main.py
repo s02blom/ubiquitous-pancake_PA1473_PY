@@ -236,12 +236,15 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
 
     while ultrasonic_sensor.distance() > PALET_DISTANCE and count < 2:
         
-        robot.turn(90)
+      robot.turn(90)
+      print("turning")
         #robot.straight(150)
-        while colour_sensor.color() != COLORS["yellow line"]:
-            drive_forward()
-        robot.turn(-90)
-        count = count + 1
+      current_colour = classify_color(colour_sensor.rgb())[0]
+      while classify_color(colour_sensor.rgb())[0] == current_colour:
+            robot.drive(50,0)
+      robot.turn(-90)
+      count = count + 1
+      print(count)
         #Sväng 90 vänster
         #Kör en bil längd
         #Sväng 90 höger
