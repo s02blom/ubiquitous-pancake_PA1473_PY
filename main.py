@@ -70,14 +70,14 @@ COLORS = {
     "white": (46,55,97)
 }
 
-TMP_COLORS = COLORS
+TMP_COLORS = COLORS.copy()
 del TMP_COLORS["white"]
 LINE_COLORS = TMP_COLORS.keys()
 
 #Here is where you code starts
 
 def calibrate_colors(COLORS):
-    temp_colors = COLORS
+    temp_colors = COLORS.copy()
     for key in temp_colors:
         print_on_screen("Select color " + key)
         while True:
@@ -121,6 +121,7 @@ def classify_color(rgb_in):
             matches.append(color_key)
     if len(matches) == 0:
         return [None]
+    print(matches)
     return matches
 
 def compare_arrays(array_1, array_2):
@@ -142,11 +143,11 @@ def select_path():
     Trucken hittar vägen av önskad färg och svänger mot den.
     """
     while path_color not in classify_color(colour_sensor.rgb()):
-        if classify_color(colour_sensor.rgb())[0] not in ["White", "Middle Circle"]:
-            robot.drive(40, 0)
-            wait(1000)
-            robot.drive(0, 0)
-        follow_color(colour_sensor.rgb())
+        # print (classify_color(colour_sensor.rgb())[0])
+        if compare_arrays(classify_color(colour_sensor.rgb()), ["red", "blue", "green", "purple"]):
+            robot.straight(50)
+        else:
+            follow_color()
     align_right()
     
 def drive_to_destination():
@@ -157,8 +158,8 @@ def drive_to_destination():
     Resultat:
     Trucken kör fram till den svarta ytan där vägen möter varuhuset.
     """
-    while "Black" not in classify_color(colour_sensor.rgb()):
-        drive_forward(precise = True)
+    while "black" not in classify_color(colour_sensor.rgb()):
+        follow_color()
     robot.drive(0, 0)
 
 def return_to_circle():
@@ -169,13 +170,13 @@ def return_to_circle():
     Resultat:
     Trucken svänger ut och kör tillbaka till mitt-cirkeln.
     """
-    while "Middle Circle" not in classify_color(colour_sensor.rgb()):
-        if "Black" in classify_color(colour_sensor.rgb()):
+    while "middle circle" not in classify_color(colour_sensor.rgb()):
+        if "black" in classify_color(colour_sensor.rgb()):
             robot.drive(0, 45)
             wait(3000)
             robot.drive(0, 0)
         else:
-            drive_forward(precise = True)
+            follow_color()
     align_right()
 
 def align_right():
@@ -197,7 +198,7 @@ def drive_forward(precise = True) -> None:
     robot.drive(speed, turn_rate)
 
 
-def follow_color(color_rgb):
+def follow_color():
     drive_speed = 100
     if driving_with_pallet == True:
         drive_speed = 40
@@ -239,7 +240,7 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
         robot.turn(90)
         #robot.straight(150)
         while colour_sensor.color() != COLORS["yellow line"]:
-            drive_forward()
+            follow_color()
         robot.turn(-90)
         count = count + 1
         #Sväng 90 vänster
@@ -308,7 +309,7 @@ def main():
         return_to_circle()
 
         
-def get_color(color = "svart"):
+def get_color():
     while (True):
         color = input("Choose color... ")
         if str(color).lower() in COLORS.keys():
