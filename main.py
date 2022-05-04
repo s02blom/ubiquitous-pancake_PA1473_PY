@@ -71,7 +71,8 @@ COLORS = {
 }
 
 TMP_COLORS = COLORS.copy()
-del TMP_COLORS["white"]
+for color in ["white", "brown", "black"]:
+    del TMP_COLORS[color]
 LINE_COLORS = TMP_COLORS.keys()
 
 #Here is where you code starts
@@ -163,7 +164,7 @@ def drive_to_destination():
     robot.drive(0, 0)
 
 def return_to_circle():
-    print_on_screen('Returning to the circle.')
+    # print_on_screen('Returning to the circle.')
     """
     Antagande:
     Trucken står på den svarta ytan i ett lager med nosen innåt i lagret.
