@@ -58,18 +58,32 @@ olive_for_center_circle = 0
 purple_in_deliver = 0
 
 COLORS = {
-    "red": (67,25,38),
-    "blue": (11,27,48),
-    "yellow line": (57,49,11),
+    "red": (48,16,26),
+    "blue": (7,19,37),
+    "yellow line": (39,35,10),
     "Brown": (14,9,12),
     "Black": (0,0,0),
-    "Purple": (14,12,40),
-    "Middle Circle": (17,19,13),
-    "Green": (10,44,21),
-    "White": (71,86,100)
+    "Purple": (9,10,32),
+    "Middle Circle": (10,12,8),
+    "Green": (6,24,14),
+    "White": (46,55,97)
 }
 
 #Here is where you code starts
+
+def calibrate_colors(COLORS):
+    temp_colors = COLORS
+    for key in temp_colors:
+        print_on_screen("Select color " + key)
+        while True:
+            if Button.CENTER in ev3.buttons.pressed():
+                temp_colors[key] = colour_sensor.rgb()
+                wait(1000)
+                break
+    ev3.screen.clear()
+                
+    return temp_colors
+    
 def print_on_screen(text):
     ev3.screen.clear()
     ev3.screen.print(str(text))
@@ -256,8 +270,7 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     while(True): 
-        print(colour_sensor.reflection())
-        wait(2000)
+        drive_forward()
         
 def get_color(color = "svart"):
     while (True):
@@ -269,6 +282,7 @@ def get_color(color = "svart"):
         else:
             print("No color matching input")
 
+# COLORS = calibrate_colors(COLORS)
 
 _thread.start_new_thread(main,(),)
 _thread.start_new_thread(get_color,(),)
