@@ -68,6 +68,11 @@ COLORS = {
     "White": (46,55,97)
 }
 
+TMP_COLORS = COLORS
+del TMP_COLORS["White"]
+LINE_COLORS = TMP_COLORS.keys()
+
+print(LINE_COLORS)
 #Here is where you code starts
 
 def calibrate_colors(COLORS):
@@ -116,6 +121,16 @@ def classify_color(rgb_in):
     if len(matches) == 0:
         return [None]
     return matches
+
+def compare_arrays(dict_1, dict_2):
+    matches = 0
+    for key1 in dict_1.keys():
+        for key2 in dict_2.keys():
+            if key1 == key2:
+                matches += 1
+    if matches != 0:
+        return True
+    return False
 
 def select_path(path_color):
     # print_on_screen(f'Seachring for {path_color} path.')
@@ -180,14 +195,14 @@ def drive_forward(precise = True) -> None:
         speed = drive_speed
     robot.drive(speed, turn_rate)
 
-def follow_color(color_rgb):
+def follow_colored_line():
     drive_speed = 75
     if driving_with_pallet == True:
         drive_speed = 40
     turn_rate = 25
-    if color_rgb == classify_color(colour_sensor.rgb())[0]:
-        turn_rate = -150
-        drive_speed = -100
+    if compare_arrays(LINE_COLORS, classify_color(colour_sensor.rgb())):
+        turn_rate = -90
+        drive_speed = -80
     robot.drive(drive_speed, turn_rate)
 
 def find_pallet(is_pallet_on_ground: bool) -> None:
@@ -281,7 +296,11 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     while(True): 
-        drive_forward()
+        select_path("blue")
+        drive_to_destination()
+        wait(20000)
+        return_to_circle()
+
         
 def get_color(color = "svart"):
     while (True):
