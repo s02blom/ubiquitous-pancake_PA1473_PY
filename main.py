@@ -173,11 +173,29 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
     Resultat:
     Vi är redo att köra pickup pallet, med eller utan höjd
     """
-    while ultrasonic_sensor.distance() > PALET_DISTANCE:
+    # count = 0
+    # drive forward
+    #  while pallet not found and count <2:
+   
+    
+    #
+    #   if warehouse.red
+    #      turn 90 degrees left
+    #   else if warehouse.blue
+    #      turn 90 degrees right
+    #   drive until yellow line found
+    #   turn back
+    #   count++
+    count = 0
+
+    while ultrasonic_sensor.distance() > PALET_DISTANCE and count < 2:
         
         robot.turn(90)
-        robot.straight(150)
+        #robot.straight(150)
+        while colour_sensor.color() != COLORS["yellow line"]:
+            drive_forward()
         robot.turn(-90)
+        count = count + 1
         #Sväng 90 vänster
         #Kör en bil längd
         #Sväng 90 höger
@@ -185,9 +203,15 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
 
     if is_pallet_on_ground:
         pick_up_pallet_on_ground()
-    else: 
+    elif(is_pallet_on_ground == False):#elif 
         #pick_up
         pick_up_pallet_in_air()
+    #drive back to entrance
+    while(count > 0):
+        #Sväng åt rätt riktning.
+        while colour_sensor.color() != COLORS["yellow line"]:
+            drive_forward()
+        count = count - 1
 
 def pick_up_pallet_in_air() -> None:
     Crane_motor.run_angle(CRANE_SPEED, 200)
