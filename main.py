@@ -14,7 +14,6 @@ import _thread
 # This program requires LEGO EV3 MicroPython v2.0 or higher.
 # Click "Open user guide" on the EV3 extension tab for more information.
 
-
 # Create your objects here.
 ev3 = EV3Brick()
 
@@ -104,9 +103,6 @@ def classify_color(rgb_in):
         return None
     return matches
 
-
-
-
 def select_path(path_color):
     # print_on_screen(f'Seachring for {path_color} path.')
     """
@@ -155,15 +151,24 @@ def align_left():
 def drive_forward(precise = True) -> None:
     deviation = max(LINE_REFLECTION, colour_sensor.reflection()) - threshold
     turn_rate = TURN_RATE_AMPLIFIER * deviation
+    drive_speed = 75
     if driving_with_pallet == True:
         drive_speed = 40
-    drive_speed = 75
     if precise:
         # speed = drive_speed / (0.8 + abs(deviation) * 0.06)
         speed = drive_speed * max(0.1, 1 - (abs(turn_rate) / DESIRED_TURN_RATE))
     else:
         speed = drive_speed
     robot.drive(speed, turn_rate)
+
+def follow_color(color_rgb):
+    drive_speed = 75
+    if driving_with_pallet == True:
+        drive_speed = 40
+    turn_rate = 45
+    if color_rgb == classify_color(colour_sensor.rgb())[0]:
+        turn_rate = -25
+    robot.drive(drive_speed, turn_rate)
 
 def find_pallet(is_pallet_on_ground: bool) -> None:
     print_on_screen('Searching for a pallet.')
