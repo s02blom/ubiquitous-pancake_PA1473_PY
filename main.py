@@ -58,12 +58,12 @@ olive_for_center_circle = 0
 purple_in_deliver = 0
 
 COLORS = {
-    "red": (75,25,38),
+    "red": (67,25,38),
     "blue": (11,27,48),
     "yellow line": (57,49,11),
     "Brown": (14,9,12),
-    "Black": (3,3,2),
-    "Purple": (14,12,47),
+    "Black": (0,0,0),
+    "Purple": (14,12,40),
     "Middle Circle": (17,19,13),
     "Green": (10,44,21),
     "White": (71,86,100)
@@ -83,7 +83,7 @@ def print_on_screen(text):
     ev3.screen.print(str(text))
 
 def classify_color(rgb_in):
-    OFFSET = 5
+    OFFSET = 10
     match_r = []
     match_g = []
     match_b = []
@@ -101,7 +101,7 @@ def classify_color(rgb_in):
         if color_key in match_r and color_key in match_g and color_key in match_b:
             matches.append(color_key)
     if len(matches) == 0:
-        return None
+        return [None]
     return matches
 
 
@@ -232,7 +232,8 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     while(True): 
-        print(colour_sensor.rgb())
+        print(colour_sensor.reflection())
+        wait(2000)
         
 def get_color(color = "svart"):
     while (True):
