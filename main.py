@@ -71,10 +71,9 @@ COLORS = {
 }
 
 TMP_COLORS = COLORS
-del TMP_COLORS["White"]
+del TMP_COLORS["white"]
 LINE_COLORS = TMP_COLORS.keys()
 
-print(LINE_COLORS)
 #Here is where you code starts
 
 def calibrate_colors(COLORS):
@@ -134,7 +133,7 @@ def compare_arrays(dict_1, dict_2):
         return True
     return False
 
-def select_path(path_color):
+def select_path():
     # print_on_screen(f'Seachring for {path_color} path.')
     """
     Antagande:
@@ -147,7 +146,7 @@ def select_path(path_color):
             robot.drive(40, 0)
             wait(1000)
             robot.drive(0, 0)
-        drive_forward()
+        follow_color(colour_sensor.rgb())
     align_right()
     
 def drive_to_destination():
@@ -303,9 +302,9 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     while(True): 
-        select_path("blue")
+        select_path()
         drive_to_destination()
-        wait(20000)
+        wait(2000)
         return_to_circle()
 
         
