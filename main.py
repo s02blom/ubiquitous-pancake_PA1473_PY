@@ -56,23 +56,24 @@ green_to_pickup_and_deliver = Color.GREEN
 olive_for_center_circle = 0
 purple_in_deliver = 0
 
+path_color = "red"
+
 COLORS = {
     "red": (48,16,26),
     "blue": (7,19,37),
     "yellow line": (39,35,10),
-    "Brown": (14,9,12),
-    "Black": (0,0,0),
-    "Purple": (9,10,32),
-    "Middle Circle": (10,12,8),
-    "Green": (6,24,14),
-    "White": (46,55,97)
+    "brown": (14,9,12),
+    "black": (0,0,0),
+    "purple": (9,10,32),
+    "middle circle": (10,12,8),
+    "green": (6,24,14),
+    "white": (46,55,97)
 }
 
 TMP_COLORS = COLORS
-del TMP_COLORS["White"]
+del TMP_COLORS["white"]
 LINE_COLORS = TMP_COLORS.keys()
 
-print(LINE_COLORS)
 #Here is where you code starts
 
 def calibrate_colors(COLORS):
@@ -132,7 +133,7 @@ def compare_arrays(array_1, array_2):
         return True
     return False
 
-def select_path(path_color):
+def select_path():
     # print_on_screen(f'Seachring for {path_color} path.')
     """
     Antagande:
@@ -145,7 +146,7 @@ def select_path(path_color):
             robot.drive(40, 0)
             wait(1000)
             robot.drive(0, 0)
-        drive_forward()
+        follow_color(colour_sensor.rgb())
     align_right()
     
 def drive_to_destination():
@@ -301,19 +302,19 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     while(True): 
-        select_path("blue")
+        select_path()
         drive_to_destination()
-        wait(20000)
+        wait(2000)
         return_to_circle()
 
         
 def get_color(color = "svart"):
     while (True):
         color = input("Choose color... ")
-        if str(color).lower() == "red":
+        if str(color).lower() in COLORS.keys():
+            path_color = color.lower()
             print(color)
-        elif str(color).lower() == "blue":
-            print(color)
+            
         else:
             print("No color matching input")
 
