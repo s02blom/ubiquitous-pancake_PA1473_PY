@@ -123,7 +123,7 @@ def classify_color(rgb_in):
             matches.append(color_key)
     if len(matches) == 0:
         return [None]
-    print(matches)
+    # print(matches)
     return matches
 
 def compare_arrays(array_1, array_2):
@@ -227,10 +227,15 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
     Vi är redo att köra pickup pallet, med eller utan höjd
     """
     while "yellow line" not in classify_color(colour_sensor.rgb()):
-        robot.drive(20,20)
+        robot.drive(40,20)
     while ultrasonic_sensor.distance()> PALET_DISTANCE:
-        follow_color()
+        follow_color(["yellow line"])
     print("End my pain :)")
+    if (is_pallet_on_ground) :
+        pick_up_pallet_on_ground()
+    elif(is_pallet_on_ground == False ):#elif 
+        #pick_up
+        pick_up_pallet_in_air()
     # count = 0
     # robot.straight(300)
     # while ultrasonic_sensor.distance() > PALET_DISTANCE and count < 2:
@@ -250,11 +255,7 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
     #     #Sväng 90 höger
     #     #Loop
     
-    # if is_pallet_on_ground and count <2:
-    #     pick_up_pallet_on_ground()
-    # elif(is_pallet_on_ground == False and count <2):#elif 
-    #     #pick_up
-    #     pick_up_pallet_in_air()
+    
     # #drive back to entrance
     # while(count > 0):
     #     #Sväng åt rätt riktning.
