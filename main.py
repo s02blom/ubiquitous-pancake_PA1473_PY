@@ -204,16 +204,16 @@ def drive_forward(precise = True) -> None:
     robot.drive(speed, turn_rate)
 
 
-def follow_color():
+def follow_color(color_array = LINE_COLORS):
     drive_speed = 100
     if driving_with_pallet == True:
         drive_speed = 40
     turn_rate = 35
-    while compare_arrays(LINE_COLORS, classify_color(colour_sensor.rgb())):
+    while compare_arrays(color_array, classify_color(colour_sensor.rgb())):
         turn_rate = 0
         drive_speed = 0
         robot.turn(-20)
-        if compare_arrays(LINE_COLORS, classify_color(colour_sensor.rgb())):
+        if compare_arrays(color_array, classify_color(colour_sensor.rgb())):
             robot.turn(-45)
             robot.straight(-70)
     robot.drive(drive_speed, turn_rate)
