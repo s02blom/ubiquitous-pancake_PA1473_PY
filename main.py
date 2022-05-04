@@ -57,6 +57,7 @@ olive_for_center_circle = 0
 purple_in_deliver = 0
 
 path_color = "red"
+current_destination = None
 
 COLORS = {
     "red": (48,16,26),
@@ -70,14 +71,15 @@ COLORS = {
     "white": (46,55,97)
 }
 
-TMP_COLORS = COLORS
-del TMP_COLORS["white"]
+TMP_COLORS = COLORS.copy()
+for color in ["white", "brown", "black"]:
+    del TMP_COLORS[color]
 LINE_COLORS = TMP_COLORS.keys()
 
 #Here is where you code starts
 
 def calibrate_colors(COLORS):
-    temp_colors = COLORS
+    temp_colors = COLORS.copy()
     for key in temp_colors:
         print_on_screen("Select color " + key)
         while True:
@@ -121,6 +123,7 @@ def classify_color(rgb_in):
             matches.append(color_key)
     if len(matches) == 0:
         return [None]
+    print(matches)
     return matches
 
 def compare_arrays(array_1, array_2):
@@ -142,41 +145,45 @@ def select_path():
     Trucken hittar vägen av önskad färg och svänger mot den.
     """
     while path_color not in classify_color(colour_sensor.rgb()):
-        if classify_color(colour_sensor.rgb())[0] not in ["White", "Middle Circle"]:
-            robot.drive(40, 0)
-            wait(1000)
-            robot.drive(0, 0)
-        follow_color(colour_sensor.rgb())
+        # print (classify_color(colour_sensor.rgb())[0])
+        if compare_arrays(classify_color(colour_sensor.rgb()), ["red", "blue", "green", "purple"]):
+            robot.straight(50)
+        else:
+            follow_color()
     align_right()
+    current_destination = path_color
+    # print_on_screen(f'Found path to {current_destination} warehouse.')
     
 def drive_to_destination():
-    # print_on_screen(f'Driving to {path_color} warehouse.')
+    # print_on_screen(f'Driving to {current_destination} warehouse.')
     """
     Antagande:
     Trucken har hittat önskad väg och är justerad efter dess riktning.
     Resultat:
     Trucken kör fram till den svarta ytan där vägen möter varuhuset.
     """
-    while "Black" not in classify_color(colour_sensor.rgb()):
-        drive_forward(precise = True)
+    while "black" not in classify_color(colour_sensor.rgb()):
+        follow_color()
     robot.drive(0, 0)
+    # print_on_screen(f'Arrived at {current_destination} warehouse.')
 
 def return_to_circle():
-    print_on_screen('Returning to the circle.')
+    # print_on_screen('Returning to the middle circle.')
     """
     Antagande:
     Trucken står på den svarta ytan i ett lager med nosen innåt i lagret.
     Resultat:
     Trucken svänger ut och kör tillbaka till mitt-cirkeln.
     """
-    while "Middle Circle" not in classify_color(colour_sensor.rgb()):
-        if "Black" in classify_color(colour_sensor.rgb()):
+    while "middle circle" not in classify_color(colour_sensor.rgb()):
+        if "black" in classify_color(colour_sensor.rgb()):
             robot.drive(0, 45)
             wait(3000)
             robot.drive(0, 0)
         else:
-            drive_forward(precise = True)
+            follow_color()
     align_right()
+    # print_on_screen('Arrived at the middle circle.')
 
 def align_right():
     robot.drive(0, -45)
@@ -197,16 +204,16 @@ def drive_forward(precise = True) -> None:
     robot.drive(speed, turn_rate)
 
 
-def follow_color(color_rgb):
+def follow_color(color_array = LINE_COLORS):
     drive_speed = 100
     if driving_with_pallet == True:
         drive_speed = 40
     turn_rate = 35
-    while compare_arrays(LINE_COLORS, classify_color(colour_sensor.rgb())):
+    while compare_arrays(color_array, classify_color(colour_sensor.rgb())):
         turn_rate = 0
         drive_speed = 0
         robot.turn(-20)
-        if compare_arrays(LINE_COLORS, classify_color(colour_sensor.rgb())):
+        if compare_arrays(color_array, classify_color(colour_sensor.rgb())):
             robot.turn(-45)
             robot.straight(-70)
     robot.drive(drive_speed, turn_rate)
@@ -304,7 +311,7 @@ def main():
         # wait(10000)
     find_pallet(True)
         
-def get_color(color = "svart"):
+def get_color():
     while (True):
         color = input("Choose color... ")
         if str(color).lower() in COLORS.keys():
