@@ -122,11 +122,11 @@ def classify_color(rgb_in):
         return [None]
     return matches
 
-def compare_arrays(dict_1, dict_2):
+def compare_arrays(array_1, array_2):
     matches = 0
-    for key1 in dict_1.keys():
-        for key2 in dict_2.keys():
-            if key1 == key2:
+    for element1 in array_1:
+        for element2 in array_2:
+            if element1 == element2:
                 matches += 1
     if matches != 0:
         return True
