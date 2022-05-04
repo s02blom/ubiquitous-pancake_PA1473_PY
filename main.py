@@ -236,33 +236,6 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
     elif(is_pallet_on_ground == False ):#elif 
         #pick_up
         pick_up_pallet_in_air()
-    # count = 0
-    # robot.straight(300)
-    # while ultrasonic_sensor.distance() > PALET_DISTANCE and count < 2:
-      
-    #   robot.turn(200)
-    #   robot.straight(200)
-    #   print("turning")
-    #     #robot.straight(150)
-    #   current_colour = classify_color(colour_sensor.rgb())[0]
-    #   while classify_color(colour_sensor.rgb())[0] == current_colour:
-    #         robot.drive(100,0)
-    #   robot.turn(-200)
-    #   count = count + 1
-    #   print(count)
-    #     #Sväng 90 vänster
-    #     #Kör en bil längd
-    #     #Sväng 90 höger
-    #     #Loop
-    
-    
-    # #drive back to entrance
-    # while(count > 0):
-    #     #Sväng åt rätt riktning.
-    #     robot.turn(-280)
-    #     while classify_color(colour_sensor.rgb())[0] == current_colour:
-    #         robot.drive(50,0)
-    #     count = count - 1
 
 def pick_up_pallet_in_air() -> None:
     Crane_motor.run_angle(CRANE_SPEED, 200)
@@ -307,10 +280,13 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     # while(True):
-    reset_crane()
-    
-        # wait(10000)
-    find_pallet(True)
+    while ultrasonic_sensor.presence() == False and ultrasonic_sensor.distance() > STOP_DISTANCE:
+        select_path()
+        drive_to_destination()
+        find_pallet(True)
+        # Get out of warehouse
+        return_to_circle()
+
         
 def get_color():
     while (True):
