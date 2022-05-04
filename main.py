@@ -56,16 +56,18 @@ green_to_pickup_and_deliver = Color.GREEN
 olive_for_center_circle = 0
 purple_in_deliver = 0
 
+path_color = "red"
+
 COLORS = {
     "red": (48,16,26),
     "blue": (7,19,37),
     "yellow line": (39,35,10),
-    "Brown": (14,9,12),
-    "Black": (0,0,0),
-    "Purple": (9,10,32),
-    "Middle Circle": (10,12,8),
-    "Green": (6,24,14),
-    "White": (46,55,97)
+    "brown": (14,9,12),
+    "black": (0,0,0),
+    "purple": (9,10,32),
+    "middle circle": (10,12,8),
+    "green": (6,24,14),
+    "white": (46,55,97)
 }
 
 #Here is where you code starts
@@ -290,10 +292,10 @@ def main():
 def get_color(color = "svart"):
     while (True):
         color = input("Choose color... ")
-        if str(color).lower() == "red":
+        if str(color).lower() in COLORS.keys():
+            path_color = color.lower()
             print(color)
-        elif str(color).lower() == "blue":
-            print(color)
+            
         else:
             print("No color matching input")
 
