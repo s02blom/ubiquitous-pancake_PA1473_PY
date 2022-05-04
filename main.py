@@ -101,7 +101,7 @@ def print_on_screen(text):
     ev3.screen.print(str(text))
 
 def classify_color(rgb_in):
-    OFFSET = 10
+    OFFSET = 13
     match_r = []
     match_g = []
     match_b = []
@@ -195,14 +195,19 @@ def drive_forward(precise = True) -> None:
         speed = drive_speed
     robot.drive(speed, turn_rate)
 
-def follow_colored_line():
-    drive_speed = 75
+
+def follow_color(color_rgb):
+    drive_speed = 100
     if driving_with_pallet == True:
         drive_speed = 40
-    turn_rate = 25
-    if compare_arrays(LINE_COLORS, classify_color(colour_sensor.rgb())):
-        turn_rate = -90
-        drive_speed = -80
+    turn_rate = 35
+    while compare_arrays(LINE_COLORS, classify_color(colour_sensor.rgb())):
+        turn_rate = 0
+        drive_speed = 0
+        robot.turn(-20)
+        if compare_arrays(LINE_COLORS, classify_color(colour_sensor.rgb())):
+            robot.turn(-45)
+            robot.straight(-70)
     robot.drive(drive_speed, turn_rate)
 
 def find_pallet(is_pallet_on_ground: bool) -> None:
