@@ -111,9 +111,13 @@ def select_path(path_color):
     Resultat:
     Trucken hittar vägen av önskad färg och svänger mot den.
     """
-    while colour_sensor.color() != path_color:
+    while path_color not in classify_color(colour_sensor.rgb()):
+        if classify_color(colour_sensor.rgb())[0] not in ["White", "Middle Circle"]:
+            robot.drive(40, 0)
+            wait(1000)
+            robot.drive(0, 0)
         drive_forward()
-    align_left()
+    align_right()
     
 def drive_to_destination():
     # print_on_screen(f'Driving to {path_color} warehouse.')
@@ -121,9 +125,9 @@ def drive_to_destination():
     Antagande:
     Trucken har hittat önskad väg och är justerad efter dess riktning.
     Resultat:
-    Trucken kör tills den når den svarta ytan vid slutet av vägen.
+    Trucken kör fram till den svarta ytan där vägen möter varuhuset.
     """
-    while colour_sensor.color() != Color.BLACK:
+    while "Black" not in classify_color(colour_sensor.rgb()):
         drive_forward(precise = True)
     robot.drive(0, 0)
 
@@ -135,17 +139,18 @@ def return_to_circle():
     Resultat:
     Trucken svänger ut och kör tillbaka till mitt-cirkeln.
     """
-    while colour_sensor.color() != Color.YELLOW:
-        if colour_sensor.color() == Color.BLACK:
+    while "Middle Circle" not in classify_color(colour_sensor.rgb()):
+        if "Black" in classify_color(colour_sensor.rgb()):
             robot.drive(0, 45)
             wait(3000)
+            robot.drive(0, 0)
         else:
             drive_forward(precise = True)
-    align_left()
+    align_right()
 
-def align_left():
+def align_right():
     robot.drive(0, -45)
-    wait(2100)
+    wait(2500)
     robot.drive(0, 0)
 
 def drive_forward(precise = True) -> None:
