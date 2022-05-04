@@ -57,6 +57,7 @@ olive_for_center_circle = 0
 purple_in_deliver = 0
 
 path_color = "red"
+current_destination = None
 
 COLORS = {
     "red": (48,16,26),
@@ -150,9 +151,11 @@ def select_path():
         else:
             follow_color()
     align_right()
+    current_destination = path_color
+    # print_on_screen(f'Found path to {current_destination} warehouse.')
     
 def drive_to_destination():
-    # print_on_screen(f'Driving to {path_color} warehouse.')
+    # print_on_screen(f'Driving to {current_destination} warehouse.')
     """
     Antagande:
     Trucken har hittat önskad väg och är justerad efter dess riktning.
@@ -162,9 +165,10 @@ def drive_to_destination():
     while "black" not in classify_color(colour_sensor.rgb()):
         follow_color()
     robot.drive(0, 0)
+    # print_on_screen(f'Arrived at {current_destination} warehouse.')
 
 def return_to_circle():
-    # print_on_screen('Returning to the circle.')
+    # print_on_screen('Returning to the middle circle.')
     """
     Antagande:
     Trucken står på den svarta ytan i ett lager med nosen innåt i lagret.
@@ -179,6 +183,7 @@ def return_to_circle():
         else:
             follow_color()
     align_right()
+    # print_on_screen('Arrived at the middle circle.')
 
 def align_right():
     robot.drive(0, -45)
