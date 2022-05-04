@@ -186,7 +186,7 @@ def follow_color(color_rgb):
         drive_speed = 40
     turn_rate = 40
     if color_rgb == classify_color(colour_sensor.rgb())[0]:
-        turn_rate = -60
+        turn_rate = -120
         drive_speed = -drive_speed
     robot.drive(drive_speed, turn_rate)
 
