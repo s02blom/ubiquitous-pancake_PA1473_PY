@@ -17,45 +17,43 @@ import _thread
 # Create your objects here.
 ev3 = EV3Brick()
 
-#Motor definitions
+# Motor definitions
 Left_drive = Motor(Port.C, positive_direction=Direction.COUNTERCLOCKWISE)
 Right_drive = Motor(Port.B, positive_direction=Direction.COUNTERCLOCKWISE)
 Crane_motor = Motor(Port.A)
 
-#Sensor definitions
+# Sensor definitions
 touch_sensor = TouchSensor(Port.S1)
 colour_sensor = ColorSensor(Port.S3)
 ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
+# Robot definition
 robot = DriveBase(Left_drive, Right_drive, wheel_diameter=47, axle_track=128) #SB. Stämmer wheel och axle för roboten vi har just nu?
 
-# Constants
-LINE_REFLECTION = 67
-OFF_LINE_REFLECTION = 84
+# drive_forward constants
+# LINE_REFLECTION = 67
+# OFF_LINE_REFLECTION = 84
+# threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
+# DESIRED_TURN_RATE = 45
+# TURN_RATE_AMPLIFIER = DESIRED_TURN_RATE / ((OFF_LINE_REFLECTION - LINE_REFLECTION) / 2)
 
-threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
-
-DRIVE_SPEED = 75
+# Driving variables
+DRIVE_SPEED = 100
 DRIVE_WITH_PALLET = 50
 CRANE_SPEED = 200
 STOP_DISTANCE = 350
 PALET_DISTANCE = 500
-
-DESIRED_TURN_RATE = 45
-TURN_RATE_AMPLIFIER = DESIRED_TURN_RATE / ((OFF_LINE_REFLECTION - LINE_REFLECTION) / 2)
-
 GROUND_LIFT_ANGLE = 50
 
 driving_with_pallet = False
 
-#Colour
+# Color variables
 brown_warehouse = Color.BROWN
 red_warehouse = Color.RED
 blue_warehouse = Color.BLUE
 green_to_pickup_and_deliver = Color.GREEN
 olive_for_center_circle = 0
 purple_in_deliver = 0
-
 path_color = "red"
 current_location = None
 
@@ -71,12 +69,11 @@ COLORS = {
     "white": (46,55,97)
 }
 
+# Keys of line colors
 TMP_COLORS = COLORS.copy()
 for color in ["white", "brown", "black"]:
     del TMP_COLORS[color]
 LINE_COLORS = TMP_COLORS.keys()
-
-#Here is where you code starts
 
 def calibrate_colors(COLORS):
     temp_colors = COLORS.copy()
@@ -87,10 +84,9 @@ def calibrate_colors(COLORS):
                 temp_colors[key] = colour_sensor.rgb()
                 wait(1000)
                 break
-    ev3.screen.clear()
-                
+    ev3.screen.clear()          
     return temp_colors
-    
+
 def print_on_screen(text):
     ev3.screen.clear()
     ev3.screen.print(str(text))
@@ -153,7 +149,7 @@ def select_path():
     align_right()
     current_location = path_color
     # print_on_screen(f'Found path to {current_location} warehouse.')
-    
+
 def drive_to_destination():
     # print_on_screen(f'Driving to {current_location} warehouse.')
     """
@@ -190,24 +186,23 @@ def align_right():
     wait(2500)
     robot.drive(0, 0)
 
-def drive_forward(precise = True) -> None:
-    deviation = max(LINE_REFLECTION, colour_sensor.reflection()) - threshold
-    turn_rate = TURN_RATE_AMPLIFIER * deviation
-    drive_speed = 75
-    if driving_with_pallet == True:
-        drive_speed = 40
-    if precise:
-        # speed = drive_speed / (0.8 + abs(deviation) * 0.06)
-        speed = drive_speed * max(0.1, 1 - (abs(turn_rate) / DESIRED_TURN_RATE))
-    else:
-        speed = drive_speed
-    robot.drive(speed, turn_rate)
-
+# def drive_forward(precise = True) -> None:
+#     deviation = max(LINE_REFLECTION, colour_sensor.reflection()) - threshold
+#     turn_rate = TURN_RATE_AMPLIFIER * deviation
+#     drive_speed = 75
+#     if driving_with_pallet == True:
+#         drive_speed = 40
+#     if precise:
+#         # speed = drive_speed / (0.8 + abs(deviation) * 0.06)
+#         speed = drive_speed * max(0.1, 1 - (abs(turn_rate) / DESIRED_TURN_RATE))
+#     else:
+#         speed = drive_speed
+#     robot.drive(speed, turn_rate)
 
 def follow_color(color_array = LINE_COLORS):
-    drive_speed = 100
+    drive_speed = DRIVE_SPEED
     if driving_with_pallet == True:
-        drive_speed = 40
+        drive_speed = DRIVE_WITH_PALLET
     turn_rate = 35
     while compare_arrays(color_array, classify_color(colour_sensor.rgb())):
         turn_rate = 0
@@ -286,7 +281,6 @@ def main():
         find_pallet(True)
         # Get out of warehouse
         return_to_circle()
-
         
 def get_color():
     while (True):
