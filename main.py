@@ -40,6 +40,7 @@ robot = DriveBase(Left_drive, Right_drive, wheel_diameter=47, axle_track=128) #S
 # Driving variables
 DRIVE_SPEED = 100
 DRIVE_WITH_PALLET = 50
+TURN_RATE_AMPLIFIER = 2
 CRANE_SPEED = 200
 STOP_DISTANCE = 350
 PALET_DISTANCE = 500
@@ -198,6 +199,23 @@ def align_right():
 #     else:
 #         speed = drive_speed
 #     robot.drive(speed, turn_rate)
+
+def deviation_from_rgb(rgb_in, line_color = COLORS['red']):
+    sum_white = sum(COLORS['white'])
+    sum_line = sum(line_color)
+    threshold = (sum_white + sum_line) / 2
+    sum_in = sum(rgb_in)
+    deviation = sum_in - threshold
+    return deviation
+
+def follow_line(rgb_in) -> None:
+    deviation = deviation_from_rgb(rgb_in)
+    turn_rate = TURN_RATE_AMPLIFIER * deviation
+    drive_speed = DRIVE_SPEED
+    if driving_with_pallet == True:
+        drive_speed = DRIVE_WITH_PALLET
+    speed = drive_speed / (0.9 + abs(deviation) * 0.1)
+    robot.drive(speed, turn_rate)
 
 def follow_color(color_array = LINE_COLORS):
     drive_speed = DRIVE_SPEED
