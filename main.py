@@ -200,7 +200,7 @@ def align_right():
 #         speed = drive_speed
 #     robot.drive(speed, turn_rate)
 
-def deviation_from_rgb(rgb_in, line_color = COLORS['red']):
+def deviation_from_rgb(rgb_in, line_color):
     sum_white = sum(COLORS['white'])
     sum_line = sum(line_color)
     threshold = (sum_white + sum_line) / 2
@@ -208,8 +208,8 @@ def deviation_from_rgb(rgb_in, line_color = COLORS['red']):
     deviation = sum_in - threshold
     return deviation
 
-def follow_line(rgb_in) -> None:
-    deviation = deviation_from_rgb(rgb_in)
+def follow_line(rgb_in, line_color = COLORS['red']) -> None:
+    deviation = deviation_from_rgb(rgb_in, line_color)
     turn_rate = TURN_RATE_AMPLIFIER * deviation
     drive_speed = DRIVE_SPEED
     if driving_with_pallet == True:
