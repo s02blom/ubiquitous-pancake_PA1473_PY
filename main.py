@@ -224,7 +224,7 @@ def follow_line(rgb_in, line_color = COLORS['red']) -> None:
     if driving_with_pallet == True:
         drive_speed = DRIVE_WITH_PALLET
     speed = drive_speed / (0.9 + abs(deviation) * 0.04)
-    if deviation + 3 >= threshold:
+    if (abs(deviation) + 3 >= threshold) and (deviation < 0):
         speed = -speed
     robot.drive(speed, turn_rate)
 
