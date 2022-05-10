@@ -40,7 +40,7 @@ robot = DriveBase(Left_drive, Right_drive, wheel_diameter=47, axle_track=128) #S
 # Driving variables
 DRIVE_SPEED = 100
 DRIVE_WITH_PALLET = 50
-TURN_RATE_AMPLIFIER = 2
+TURN_RATE_AMPLIFIER = 1
 CRANE_SPEED = 200
 STOP_DISTANCE = 350
 PALET_DISTANCE = 500
@@ -58,7 +58,7 @@ clear_road = True
 
 # Color dictionary with all the rgb values
 COLORS = {
-    "red": (32,16,26),
+    "red": (68,23,40),
     "blue": (7,19,37),
     "yellow line": (39,35,10),
     "brown": (14,9,12),
@@ -66,7 +66,7 @@ COLORS = {
     "purple": (9,10,32),
     "middle circle": (10,12,8),
     "green": (6,24,14),
-    "white": (46,55,97)
+    "white": (72,86,100)
 }
 
 # All the colors of the lines to follow
@@ -220,7 +220,7 @@ def follow_line(rgb_in, line_color = COLORS['red']) -> None:
     drive_speed = DRIVE_SPEED
     if driving_with_pallet == True:
         drive_speed = DRIVE_WITH_PALLET
-    speed = drive_speed / (0.9 + abs(deviation) * 0.1)
+    speed = drive_speed / (0.9 + abs(deviation) * 0.05)
     robot.drive(speed, turn_rate)
 
 def follow_color(color_array = LINE_COLORS):
@@ -305,12 +305,7 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     while(True):
-        select_path()
-        drive_to_destination()
-        reset_crane()
-        find_pallet(True)
-    #Get out of warehouse
-        return_to_circle()
+        follow_line(colour_sensor.rgb())
         
 def get_color():
     while (True):
