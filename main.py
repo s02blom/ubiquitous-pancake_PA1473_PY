@@ -216,11 +216,16 @@ def deviation_from_rgb(rgb_in, line_color):
 
 def follow_line(rgb_in, line_color = COLORS['red']) -> None:
     deviation = deviation_from_rgb(rgb_in, line_color)
+    sum_white = sum(COLORS['white'])
+    sum_line = sum(line_color)
+    threshold = (sum_white + sum_line) / 2
     turn_rate = TURN_RATE_AMPLIFIER * deviation
     drive_speed = DRIVE_SPEED
     if driving_with_pallet == True:
         drive_speed = DRIVE_WITH_PALLET
-    speed = drive_speed / (0.9 + abs(deviation) * 0.05)
+    speed = drive_speed / (0.9 + abs(deviation) * 0.04)
+    if deviation + 3 >= threshold:
+        speed = -speed
     robot.drive(speed, turn_rate)
 
 def follow_color(color_array = LINE_COLORS):
