@@ -22,33 +22,28 @@ Left_drive = Motor(Port.C, positive_direction=Direction.COUNTERCLOCKWISE)
 Right_drive = Motor(Port.B, positive_direction=Direction.COUNTERCLOCKWISE)
 Crane_motor = Motor(Port.A)
 
-#Sensor definitions
+# Sensor definitions
 touch_sensor = TouchSensor(Port.S1)
 colour_sensor = ColorSensor(Port.S3)
 ultrasonic_sensor = UltrasonicSensor(Port.S4)
 
-# Creating DriveBase
+# Robot definition
 robot = DriveBase(Left_drive, Right_drive, wheel_diameter=47, axle_track=128) #SB. Stämmer wheel och axle för roboten vi har just nu?
 
-# Constants line reflections
-LINE_REFLECTION = 67
-OFF_LINE_REFLECTION = 84
+# drive_forward constants
+# LINE_REFLECTION = 67
+# OFF_LINE_REFLECTION = 84
+# threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
+# DESIRED_TURN_RATE = 45
+# TURN_RATE_AMPLIFIER = DESIRED_TURN_RATE / ((OFF_LINE_REFLECTION - LINE_REFLECTION) / 2)
 
-# Calculating threshold
-threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
-
-# Speeds and distances
-DRIVE_SPEED = 75
+# Driving variables
+DRIVE_SPEED = 100
 DRIVE_WITH_PALLET = 50
+TURN_RATE_AMPLIFIER = 2
 CRANE_SPEED = 200
 STOP_DISTANCE = 350
 PALET_DISTANCE = 500
-
-# Turn rates
-DESIRED_TURN_RATE = 45
-TURN_RATE_AMPLIFIER = DESIRED_TURN_RATE / ((OFF_LINE_REFLECTION - LINE_REFLECTION) / 2)
-
-# Ground lift angle
 GROUND_LIFT_ANGLE = 50
 
 # Bool for driving with pallet
@@ -198,19 +193,35 @@ def align_right():
     robot.turn(-120)
     robot.drive(0, 0)
 
-def drive_forward(precise = True) -> None:
-    deviation = max(LINE_REFLECTION, colour_sensor.reflection()) - threshold
-    turn_rate = TURN_RATE_AMPLIFIER * deviation
-    drive_speed = 75
-    if driving_with_pallet == True:
-        drive_speed = 40
-    if precise:
-        speed = drive_speed / (0.8 + abs(deviation) * 0.06)
-        speed = drive_speed * max(0.1, 1 - (abs(turn_rate) / DESIRED_TURN_RATE))
-    else:
-        speed = drive_speed
-    robot.drive(speed, turn_rate)
+# def drive_forward(precise = True) -> None:
+#     deviation = max(LINE_REFLECTION, colour_sensor.reflection()) - threshold
+#     turn_rate = TURN_RATE_AMPLIFIER * deviation
+#     drive_speed = 75
+#     if driving_with_pallet == True:
+#         drive_speed = 40
+#     if precise:
+#         # speed = drive_speed / (0.8 + abs(deviation) * 0.06)
+#         speed = drive_speed * max(0.1, 1 - (abs(turn_rate) / DESIRED_TURN_RATE))
+#     else:
+#         speed = drive_speed
+#     robot.drive(speed, turn_rate)
 
+def deviation_from_rgb(rgb_in, line_color):
+    sum_white = sum(COLORS['white'])
+    sum_line = sum(line_color)
+    threshold = (sum_white + sum_line) / 2
+    sum_in = sum(rgb_in)
+    deviation = sum_in - threshold
+    return deviation
+
+def follow_line(rgb_in, line_color = COLORS['red']) -> None:
+    deviation = deviation_from_rgb(rgb_in, line_color)
+    turn_rate = TURN_RATE_AMPLIFIER * deviation
+    drive_speed = DRIVE_SPEED
+    if driving_with_pallet == True:
+        drive_speed = DRIVE_WITH_PALLET
+    speed = drive_speed / (0.9 + abs(deviation) * 0.1)
+    robot.drive(speed, turn_rate)
 
 def follow_color(color_array = LINE_COLORS):
     global clear_road
@@ -300,7 +311,6 @@ def main():
         find_pallet(True)
     #Get out of warehouse
         return_to_circle()
-
         
 def get_color():
     while (True):
