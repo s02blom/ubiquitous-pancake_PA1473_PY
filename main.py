@@ -1,5 +1,6 @@
 #!/usr/bin/env pybricks-micropython
 # from typing_extensions import runtime
+from curses import color_content
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
                                  InfraredSensor, UltrasonicSensor, GyroSensor)
@@ -148,10 +149,10 @@ def select_path():
     """
     while path_color not in classify_color(colour_sensor.rgb()):
         # print (classify_color(colour_sensor.rgb())[0])
-        if compare_arrays(classify_color(colour_sensor.rgb()), ["red", "blue",]):
+        if compare_arrays(classify_color(colour_sensor.rgb()), ["red", "blue"]):
             robot.straight(50)
         else:
-            follow_color()
+            follow_line(colour_sensor.rgb(), COLORS['middle circle'])
     align_right()
     current_location = path_color
     print_on_screen('Found path to ' + current_location +  ' warehouse.')
@@ -166,7 +167,7 @@ def drive_to_destination():
     Trucken kör fram till den svarta ytan där vägen möter varuhuset.
     """
     while "black" not in classify_color(colour_sensor.rgb()):
-        follow_color()
+        follow_line(colour_sensor.rgb())
     robot.drive(0, 0)
     print_on_screen('Arrived at ' + current_location + ' warehouse.')
 
@@ -185,7 +186,7 @@ def return_to_circle():
             wait(3000)
             robot.drive(0, 0)
         else:
-            follow_color()
+            follow_line(colour_sensor.rgb())
     align_right()
     print_on_screen('Arrived at the middle circle.')
 
@@ -318,7 +319,10 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     while(True):
-        follow_line(colour_sensor.rgb())
+        select_path(path_color)
+        drive_to_destination()
+        wait(5000)
+        return_to_circle()
         
 def get_color():
     while (True):
