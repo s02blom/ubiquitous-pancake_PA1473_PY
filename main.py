@@ -225,7 +225,15 @@ def follow_line(rgb_in, line_color = COLORS['red']) -> None:
         drive_speed = DRIVE_WITH_PALLET
     speed = drive_speed / (0.9 + abs(deviation) * 0.04)
     if (abs(deviation) + 3 >= threshold) and (deviation < 0):
-        speed = -speed
+        # speed = -speed
+        turn_rate = 0
+        drive_speed = 0
+        robot.turn(-20)
+        deviation = deviation_from_rgb(colour_sensor.rgb(), line_color)
+        if (abs(deviation) + 3 >= threshold) and (deviation < 0):
+            robot.turn(45)
+            robot.straight(-70)
+        
     robot.drive(speed, turn_rate)
 
 def follow_color(color_array = LINE_COLORS):
