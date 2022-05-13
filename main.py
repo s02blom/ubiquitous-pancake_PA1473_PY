@@ -229,6 +229,7 @@ def deviation_from_rgb(rgb_in, line_color):
 
 def follow_line(rgb_in, line_color = COLORS['red']) -> None:
     global clear_road
+    deviation_turn_offset = 3
     if clear_road:
         deviation = deviation_from_rgb(rgb_in, line_color)
         sum_white = sum(COLORS['white'])
@@ -239,13 +240,13 @@ def follow_line(rgb_in, line_color = COLORS['red']) -> None:
         if driving_with_pallet == True:
             drive_speed = DRIVE_WITH_PALLET
         speed = drive_speed / (0.9 + abs(deviation) * 0.01)
-        if (abs(deviation) + 2 >= threshold) and (deviation < 0):
+        if (abs(deviation) + deviation_turn_offset >= threshold) and (deviation < 0):
             # speed = -speed
             turn_rate = 0
             drive_speed = 0
             robot.turn(-20)
             deviation = deviation_from_rgb(colour_sensor.rgb(), line_color)
-            if (abs(deviation) + 1 >= threshold) and (deviation < 0) and (colour_sensor.color() != Color.BLACK):
+            if (abs(deviation) + deviation_turn_offset >= threshold) and (deviation < 0) and (colour_sensor.color() != Color.BLACK):
                 robot.turn(-45)
                 robot.straight(-50)
             
