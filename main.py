@@ -239,7 +239,7 @@ def follow_line(rgb_in, line_color = COLORS['red']) -> None:
         drive_speed = DRIVE_SPEED
         if driving_with_pallet == True:
             drive_speed = DRIVE_WITH_PALLET
-        speed = drive_speed / (0.9 + abs(deviation) * 0.01)
+        speed = drive_speed / (0.9 + abs(deviation) * 0.03)
         if (abs(deviation) + deviation_turn_offset >= threshold) and (deviation < 0):
             # speed = -speed
             turn_rate = 0
@@ -249,8 +249,8 @@ def follow_line(rgb_in, line_color = COLORS['red']) -> None:
             if (abs(deviation) + deviation_turn_offset >= threshold) and (deviation < 0) and (colour_sensor.color() != Color.BLACK):
                 robot.turn(-45)
                 robot.straight(-50)
-            
-        robot.drive(speed, turn_rate)
+        else:
+            robot.drive(speed, turn_rate)
     else:
         robot.drive(0,0)
 
