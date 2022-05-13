@@ -111,7 +111,7 @@ def print_on_screen(text):
     ev3.screen.print(str(text))
 
 def change_color(color_key):
-    robot.light.on(LED_COLORS(color_key))
+    ev3.light.on(LED_COLORS[color_key])
 
     # Classify color
 def classify_color(rgb_in):
