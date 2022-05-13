@@ -41,7 +41,7 @@ robot = DriveBase(Left_drive, Right_drive, wheel_diameter=47, axle_track=128) #S
 # Driving variables
 DRIVE_SPEED = 200
 DRIVE_WITH_PALLET = 50
-TURN_RATE_AMPLIFIER = 1.2
+TURN_RATE_AMPLIFIER = 1
 CRANE_SPEED = 200
 STOP_DISTANCE = 350
 PALET_DISTANCE = 500
@@ -51,7 +51,7 @@ GROUND_LIFT_ANGLE = 50
 driving_with_pallet = False
 
 # path color
-path_color = "red"
+path_color = "green"
 # current location
 current_location = "Somewhere"
 # clear load pallet
@@ -241,7 +241,7 @@ def deviation_from_rgb(rgb_in, line_color):
 
 def follow_line(rgb_in, line_color = COLORS['red']) -> None:
     global clear_road
-    deviation_turn_offset = 3
+    deviation_turn_offset = 6
     if clear_road:
         deviation = deviation_from_rgb(rgb_in, line_color)
         sum_white = sum(COLORS['white'])
@@ -387,5 +387,4 @@ _thread.start_new_thread(main,(),)
 _thread.start_new_thread(get_color,(),)
 
 while True:
-    colour_sensor.rgb()
     pass
