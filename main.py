@@ -214,6 +214,21 @@ def return_to_circle():
     align_right()
     current_location = 'middle circle'
     change_color(current_location)
+    print_on_screen('Arrived at the middle circle.')
+    
+def return_to_area(area):
+
+    if area == "Middle cirle":
+        return_to_circle()
+    elif area == "brown wharehouse":
+        path_color = "red"
+        return_to_circle()
+        select_path()
+    elif area == "blue wharehouse":
+        path_color = "blue"
+        return_to_circle()
+        select_path()
+
 
 def align_right():
     robot.turn(-200)
@@ -293,8 +308,13 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
     Resultat:
     Vi är redo att köra pickup pallet, med eller utan höjd
     """
+    turn_rate = 0
+    if path_color == "red":
+        turn_rate = -20
+    elif path_color == "blue":
+        turn_rate = 20
     while "yellow line" not in classify_color(colour_sensor.rgb()):
-        robot.drive(40,-20)
+        robot.drive(40,turn_rate)
     while ultrasonic_sensor.distance()> PALET_DISTANCE:
         follow_color(["yellow line"])
     print_on_screen("Found pallet")
