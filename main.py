@@ -70,6 +70,14 @@ COLORS = {
     "white": (72,86,100)
 }
 
+LED_COLORS = {
+    "red": Color.RED,
+    "blue": Color.BLUE,
+    "purple": Color.BLUE,
+    "middle circle": Color.YELLOW,
+    "green": Color.GREEN,
+}
+
 # All the colors of the lines to follow
 TMP_COLORS = COLORS.copy()
 for color in ["white", "brown", "black"]:
@@ -101,6 +109,9 @@ def open_file_colors(COLORS):
 def print_on_screen(text): 
     ev3.screen.clear()
     ev3.screen.print(str(text))
+
+def change_color(color_key):
+    robot.light.on(LED_COLORS(color_key))
 
     # Classify color
 def classify_color(rgb_in):
@@ -164,7 +175,7 @@ def select_path():
     print("I found the path! Are you proud? :)")
     align_right()
     current_location = path_color
-    print_on_screen('Found path to ' + current_location +  ' warehouse.')
+    change_color(current_location)
     
 def drive_to_destination():
     global current_location
@@ -180,7 +191,7 @@ def drive_to_destination():
         follow_line(color)
         color = colour_sensor.rgb()
     robot.drive(0, 0)
-    print_on_screen('Arrived at ' + current_location + ' warehouse.')
+    change_color(current_location)
 
 def return_to_circle():
     global current_location
@@ -201,7 +212,8 @@ def return_to_circle():
         color = colour_sensor.rgb()
         print(classify_color(color))
     align_right()
-    print_on_screen('Arrived at the middle circle.')
+    current_location = 'middle circle'
+    change_color(current_location)
 
 def align_right():
     robot.turn(-200)
