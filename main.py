@@ -1,6 +1,5 @@
 #!/usr/bin/env pybricks-micropython
 # from typing_extensions import runtime
-from curses import color_content
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
                                  InfraredSensor, UltrasonicSensor, GyroSensor)
@@ -11,6 +10,7 @@ from pybricks.media.ev3dev import SoundFile, ImageFile
 from pybricks.messaging import BluetoothMailboxClient,TextMailbox
 import time
 import _thread
+import json
 
 # This program requires LEGO EV3 MicroPython v2.0 or higher.
 # Click "Open user guide" on the EV3 extension tab for more information.
@@ -39,9 +39,9 @@ robot = DriveBase(Left_drive, Right_drive, wheel_diameter=47, axle_track=128) #S
 # TURN_RATE_AMPLIFIER = DESIRED_TURN_RATE / ((OFF_LINE_REFLECTION - LINE_REFLECTION) / 2)
 
 # Driving variables
-DRIVE_SPEED = 100
+DRIVE_SPEED = 200
 DRIVE_WITH_PALLET = 50
-TURN_RATE_AMPLIFIER = 1
+TURN_RATE_AMPLIFIER = 1.2
 CRANE_SPEED = 200
 STOP_DISTANCE = 350
 PALET_DISTANCE = 500
@@ -94,13 +94,17 @@ def calibrate_colors(COLORS):
     return temp_colors # Returns temp_colors
     
     # print_on_screen, clears screen and prints new text
+def open_file_colors(COLORS):
+    with open('RGB.txt', 'w') as convert_file:
+     convert_file.write(json.dumps(COLORS))
+
 def print_on_screen(text): 
     ev3.screen.clear()
     ev3.screen.print(str(text))
 
     # Classify color
 def classify_color(rgb_in):
-    OFFSET = 8 # Offset for each color value
+    OFFSET = 15 # Offset for each color value
     match_r = [] 
     match_g = []
     match_b = []
@@ -140,6 +144,7 @@ def compare_arrays(array_1, array_2):
 # Searching for the correct path while driving along the cirkle
 def select_path():
     global current_location
+    global path_color
     print_on_screen("Searching for " + path_color + " path.")
     """
     Antagande:
@@ -147,12 +152,15 @@ def select_path():
     Resultat:
     Trucken hittar vägen av önskad färg och svänger mot den.
     """
-    while path_color not in classify_color(colour_sensor.rgb()):
-        # print (classify_color(colour_sensor.rgb())[0])
-        if compare_arrays(classify_color(colour_sensor.rgb()), ["red", "blue"]):
+    color = colour_sensor.rgb()
+    while path_color not in classify_color(color):
+        print (classify_color(color))
+        if compare_arrays(classify_color(color), ["red", "blue"]):
             robot.straight(50)
         else:
-            follow_line(colour_sensor.rgb(), COLORS['middle circle'])
+            follow_line(color, COLORS['red'])
+        color = colour_sensor.rgb()
+    print("I found the path! Are you proud? :)")
     align_right()
     current_location = path_color
     print_on_screen('Found path to ' + current_location +  ' warehouse.')
@@ -166,8 +174,10 @@ def drive_to_destination():
     Resultat:
     Trucken kör fram till den svarta ytan där vägen möter varuhuset.
     """
-    while "black" not in classify_color(colour_sensor.rgb()):
-        follow_line(colour_sensor.rgb())
+    color = colour_sensor.rgb()
+    while colour_sensor.color() != Color.BLACK:
+        follow_line(color)
+        color = colour_sensor.rgb()
     robot.drive(0, 0)
     print_on_screen('Arrived at ' + current_location + ' warehouse.')
 
@@ -180,18 +190,20 @@ def return_to_circle():
     Resultat:
     Trucken svänger ut och kör tillbaka till mitt-cirkeln.
     """
-    while "middle circle" not in classify_color(colour_sensor.rgb()):
-        if "black" in classify_color(colour_sensor.rgb()):
-            robot.drive(0, 45)
-            wait(3000)
-            robot.drive(0, 0)
-        else:
-            follow_line(colour_sensor.rgb())
+    robot.turn(40)
+    robot.straight(40)
+    while colour_sensor.color() != Color.RED:
+        robot.turn(10)
+    color = colour_sensor.rgb()
+    while "middle circle" not in classify_color(color):
+        follow_line(color)
+        color = colour_sensor.rgb()
+        print(classify_color(color))
     align_right()
     print_on_screen('Arrived at the middle circle.')
 
 def align_right():
-    robot.turn(-120)
+    robot.turn(-180)
     robot.drive(0, 0)
 
 # def drive_forward(precise = True) -> None:
@@ -217,7 +229,6 @@ def deviation_from_rgb(rgb_in, line_color):
 
 def follow_line(rgb_in, line_color = COLORS['red']) -> None:
     global clear_road
-    print(clear_road)
     if clear_road:
         deviation = deviation_from_rgb(rgb_in, line_color)
         sum_white = sum(COLORS['white'])
@@ -228,13 +239,13 @@ def follow_line(rgb_in, line_color = COLORS['red']) -> None:
         if driving_with_pallet == True:
             drive_speed = DRIVE_WITH_PALLET
         speed = drive_speed / (0.9 + abs(deviation) * 0.01)
-        if (abs(deviation) + 1 >= threshold) and (deviation < 0):
+        if (abs(deviation) + 2 >= threshold) and (deviation < 0):
             # speed = -speed
             turn_rate = 0
             drive_speed = 0
             robot.turn(-20)
             deviation = deviation_from_rgb(colour_sensor.rgb(), line_color)
-            if (abs(deviation) + 1 >= threshold) and (deviation < 0):
+            if (abs(deviation) + 1 >= threshold) and (deviation < 0) and (colour_sensor.color() != Color.BLACK):
                 robot.turn(-45)
                 robot.straight(-50)
             
@@ -324,10 +335,11 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     while(True):
-        select_path(path_color)
-        drive_to_destination()
-        wait(5000)
-        return_to_circle()
+        #select_path()
+        #drive_to_destination()
+        #wait(5000)
+        #return_to_circle()
+        follow_line(colour_sensor.rgb(),COLORS["green"])
         
 def get_color():
     while (True):
@@ -347,11 +359,20 @@ def collision_check():
             clear_road = False
         else:
             clear_road = True
-# COLORS = calibrate_colors(COLORS)
+
+# open_file_colors(calibrate_colors(COLORS))
+
+with open('RGB.txt') as f:
+    data = f.read()
+
+# reconstructing the data as a dictionary
+COLORS = json.loads(data)
+print(COLORS)
 
 _thread.start_new_thread(collision_check,(),)
 _thread.start_new_thread(main,(),)
 _thread.start_new_thread(get_color,(),)
 
 while True:
+    colour_sensor.rgb()
     pass
