@@ -51,7 +51,7 @@ GROUND_LIFT_ANGLE = 50
 driving_with_pallet = False
 
 # path color
-path_color = "green"
+path_color = "purple"
 # current location
 current_location = "Somewhere"
 # clear load pallet
@@ -104,7 +104,7 @@ def print_on_screen(text):
 
     # Classify color
 def classify_color(rgb_in):
-    OFFSET = 15 # Offset for each color value
+    OFFSET = 11 # Offset for each color value
     match_r = [] 
     match_g = []
     match_b = []
@@ -145,6 +145,7 @@ def compare_arrays(array_1, array_2):
 def select_path():
     global current_location
     global path_color
+    ev3.light.on(Color.YELLOW)
     print_on_screen("Searching for " + path_color + " path.")
     """
     Antagande:
@@ -153,9 +154,9 @@ def select_path():
     Trucken hittar vägen av önskad färg och svänger mot den.
     """
     color = colour_sensor.rgb()
+    #print (classify_color(color))
     while path_color not in classify_color(color):
-        print (classify_color(color))
-        if compare_arrays(classify_color(color), ["red", "blue"]):
+        if compare_arrays(classify_color(color), ["red", "blue","purple","green"]):
             robot.straight(50)
         else:
             follow_line(color, COLORS['red'])
@@ -190,10 +191,10 @@ def return_to_circle():
     Resultat:
     Trucken svänger ut och kör tillbaka till mitt-cirkeln.
     """
-    robot.turn(40)
-    robot.straight(40)
-    while colour_sensor.color() != Color.RED:
-        robot.turn(10)
+    robot.turn(60)
+    robot.straight(69)
+    
+    robot.turn(140)
     color = colour_sensor.rgb()
     while "middle circle" not in classify_color(color):
         follow_line(color)
@@ -203,7 +204,7 @@ def return_to_circle():
     print_on_screen('Arrived at the middle circle.')
 
 def align_right():
-    robot.turn(-180)
+    robot.turn(-200)
     robot.drive(0, 0)
 
 # def drive_forward(precise = True) -> None:
@@ -239,16 +240,16 @@ def follow_line(rgb_in, line_color = COLORS['red']) -> None:
         drive_speed = DRIVE_SPEED
         if driving_with_pallet == True:
             drive_speed = DRIVE_WITH_PALLET
-        speed = drive_speed / (0.9 + abs(deviation) * 0.03)
+        speed = drive_speed / (0.9 + abs(deviation) * 0.01)
         if (abs(deviation) + deviation_turn_offset >= threshold) and (deviation < 0):
             # speed = -speed
             turn_rate = 0
             drive_speed = 0
-            robot.turn(-20)
+            robot.turn(-25)
             deviation = deviation_from_rgb(colour_sensor.rgb(), line_color)
             if (abs(deviation) + deviation_turn_offset >= threshold) and (deviation < 0) and (colour_sensor.color() != Color.BLACK):
                 robot.turn(-45)
-                robot.straight(-50)
+                robot.straight(-60)
         else:
             robot.drive(speed, turn_rate)
     else:
@@ -336,11 +337,11 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     while(True):
-        #select_path()
-        #drive_to_destination()
-        #wait(5000)
-        #return_to_circle()
-        follow_line(colour_sensor.rgb(),COLORS["green"])
+        select_path()
+        drive_to_destination()
+        wait(5000)
+        return_to_circle()
+        # follow_line(colour_sensor.rgb(),COLORS["green"])
         
 def get_color():
     while (True):
