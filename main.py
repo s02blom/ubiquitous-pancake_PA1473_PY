@@ -113,7 +113,7 @@ def print_on_screen(text):
     ev3.screen.print(str(text))
 
 def change_color(color_key):
-    ev3.light.on(LED_COLORS[color_key])
+    ev3.light.on(LOCATIONS[color_key])
 
     # Classify color
 def classify_color(rgb_in):
@@ -257,6 +257,7 @@ def deviation_from_rgb(rgb_in, line_color):
 
 def follow_line(rgb_in, line_color = COLORS['red']) -> None:
     global clear_road
+    global driving_with_pallet
     deviation_turn_offset = 6
     if clear_road:
         deviation = deviation_from_rgb(rgb_in, line_color)
@@ -307,24 +308,50 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
     Resultat:
     Vi är redo att köra pickup pallet, med eller utan höjd
     """
-    if ultrasonic_sensor.distance() < PALET_DISTANCE + 150:
-        while "yellow line" not in classify_color(colour_sensor.rgb()):
-            robot.drive(40,20)
-        if (is_pallet_on_ground):
-            pick_up_pallet_on_ground()
-        elif(is_pallet_on_ground == False ):#elif 
-            #pick_up
-            pick_up_pallet_in_air()
-    else:
-        while "yellow line" not in classify_color(colour_sensor.rgb()):
-            robot.drive(40,20)
-        robot.straight(60)
-        while "yellow line" not in classify_color(colour_sensor.rgb()):
-            robot.drive(40,0)
-        if (is_pallet_on_ground):
-            pick_up_pallet_on_ground()
-        elif(is_pallet_on_ground == False ):
-            pick_up_pallet_in_air()
+    global current_location
+    if current_location == 'red': # Handling pallets in brown warehouse
+
+        if ultrasonic_sensor.distance() < PALET_DISTANCE + 150: # Handling pallets in first slot
+            while "yellow line" not in classify_color(colour_sensor.rgb()):
+                robot.drive(40,20)
+            if is_pallet_on_ground:
+                pick_up_pallet_on_ground()
+            else:
+                pick_up_pallet_in_air()
+
+        else: # Handling pallets in second slot
+            while "yellow line" not in classify_color(colour_sensor.rgb()):
+                robot.drive(40,20)
+            robot.straight(60)
+            while "yellow line" not in classify_color(colour_sensor.rgb()):
+                robot.drive(40,0)
+            if is_pallet_on_ground:
+                pick_up_pallet_on_ground()
+            else:
+                pick_up_pallet_in_air()
+
+    elif current_location == 'blue': # Handling pallets in blue warehouse
+
+        if ultrasonic_sensor.distance() < PALET_DISTANCE + 150: # Handling pallets in second slot
+            while "yellow line" not in classify_color(colour_sensor.rgb()):
+                robot.drive(40,-20)
+            robot.turn(-15)
+            robot.straight(60)
+            if is_pallet_on_ground:
+                pick_up_pallet_on_ground()
+            else:
+                pick_up_pallet_in_air()
+
+        else: # Handling pallets in thrid slot
+            while "yellow line" not in classify_color(colour_sensor.rgb()):
+                robot.drive(40,-20)
+            robot.straight(60)
+            while "yellow line" not in classify_color(colour_sensor.rgb()):
+                robot.drive(40,0)
+            if is_pallet_on_ground:
+                pick_up_pallet_on_ground()
+            else:
+                pick_up_pallet_in_air()
 
 def pick_up_pallet_in_air() -> None:
     Crane_motor.run_angle(CRANE_SPEED, 200)
@@ -343,6 +370,7 @@ def pick_up_pallet_on_ground() -> None:
     """
     global driving_with_pallet
     is_pallet_on_properly = False
+    global driving_with_pallet
     drive_speed_crawl = 60
     stop_after_time = 30
     drive_forward_time = time.perf_counter()
