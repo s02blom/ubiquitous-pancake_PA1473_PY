@@ -214,6 +214,21 @@ def return_to_circle():
     align_right()
     current_location = 'middle circle'
     change_color(current_location)
+    print_on_screen('Arrived at the middle circle.')
+    
+def return_to_area(area):
+
+    if area == "Middle cirle":
+        return_to_circle()
+    elif area == "brown wharehouse":
+        path_color = "red"
+        return_to_circle()
+        select_path()
+    elif area == "blue wharehouse":
+        path_color = "blue"
+        return_to_circle()
+        select_path()
+
 
 def align_right():
     robot.turn(-200)
