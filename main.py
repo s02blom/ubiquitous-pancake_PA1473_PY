@@ -255,6 +255,7 @@ def deviation_from_rgb(rgb_in, line_color):
 
 def follow_line(rgb_in, line_color = COLORS['red']) -> None:
     global clear_road
+    global driving_with_pallet
     deviation_turn_offset = 6
     if clear_road:
         deviation = deviation_from_rgb(rgb_in, line_color)
@@ -366,6 +367,7 @@ def pick_up_pallet_on_ground() -> None:
     Vi har backat tillbacka till start position. 
     """
     is_pallet_on_properly = False
+    global driving_with_pallet
     drive_speed_crawl = 60
     stop_after_time = 20
     drive_forward_time = time.perf_counter()
