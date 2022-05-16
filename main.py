@@ -40,18 +40,18 @@ robot = DriveBase(Left_drive, Right_drive, wheel_diameter=47, axle_track=128) #S
 
 # Driving variables
 DRIVE_SPEED = 200
-DRIVE_WITH_PALLET = 50
+DRIVE_WITH_PALLET = 125
 TURN_RATE_AMPLIFIER = 1
 CRANE_SPEED = 200
 STOP_DISTANCE = 350
 PALET_DISTANCE = 500
-GROUND_LIFT_ANGLE = 50
+GROUND_LIFT_ANGLE = 70
 
 # Bool for driving with pallet
 driving_with_pallet = False
 
 # path color
-path_color = "purple"
+path_color = "red"
 # current location
 current_location = "middle circle"
 # clear load pallet
@@ -70,12 +70,14 @@ COLORS = {
     "white": (72,86,100)
 }
 
-LED_COLORS = {
+LOCATIONS = {
     "red": Color.RED,
     "blue": Color.BLUE,
     "purple": Color.BLUE,
     "middle circle": Color.YELLOW,
     "green": Color.GREEN,
+    "red warehouse": Color.RED,
+    "blue warehouse": Color.BLUE
 }
 
 # All the colors of the lines to follow
@@ -167,7 +169,7 @@ def select_path():
     color = colour_sensor.rgb()
     #print (classify_color(color))
     while path_color not in classify_color(color):
-        if compare_arrays(classify_color(color), ["red", "blue","purple","green"]):
+        if compare_arrays(classify_color(color), ["red", "blue" , "purple" , "green"]):
             robot.straight(50)
         else:
             follow_line(color, COLORS['red'])
@@ -202,7 +204,7 @@ def return_to_circle():
     Resultat:
     Trucken svänger ut och kör tillbaka till mitt-cirkeln.
     """
-    robot.turn(60)
+    robot.turn(100)
     robot.straight(69)
     
     robot.turn(140)
@@ -218,16 +220,14 @@ def return_to_circle():
     
 def return_to_area(area):
 
-    if area == "Middle cirle":
+    if area == "middle circle":
         return_to_circle()
-    elif area == "brown wharehouse":
+    elif area == "red warehouse":
         path_color = "red"
         return_to_circle()
-        select_path()
-    elif area == "blue wharehouse":
+    elif area == "blue warehouse":
         path_color = "blue"
         return_to_circle()
-        select_path()
 
 
 def align_right():
@@ -341,12 +341,16 @@ def pick_up_pallet_on_ground() -> None:
     Palleten är upplockad
     Vi har backat tillbacka till start position. 
     """
+    global driving_with_pallet
     is_pallet_on_properly = False
     drive_speed_crawl = 60
-    stop_after_time = 20
+    stop_after_time = 30
     drive_forward_time = time.perf_counter()
     robot.reset()
+    robot.drive(0,0)
     
+    reset_crane()
+
     while(not is_pallet_on_properly and (time.perf_counter() -drive_forward_time) <stop_after_time):
         is_pallet_on_properly = touch_sensor.pressed()
         follow_color(["yellow line"])
@@ -364,6 +368,7 @@ def pick_up_pallet_on_ground() -> None:
     distance_to_back_out = robot.distance()
     robot.straight(-distance_to_back_out)    
     #Sväng om?
+
 def reset_crane():
     Crane_motor.run_until_stalled(CRANE_SPEED)
     Crane_motor.run_until_stalled(-CRANE_SPEED)
@@ -371,11 +376,11 @@ def reset_crane():
 # Main thread for driving etc
 def main():
     while(True):
-        # select_path()
+        select_path()
         drive_to_destination()
         find_pallet(True)
         wait(5000)
-        return_to_circle()
+        return_to_area()
         # follow_line(colour_sensor.rgb(),COLORS["green"])
         
 def get_color():
