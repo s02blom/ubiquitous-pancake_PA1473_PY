@@ -50,10 +50,8 @@ GROUND_LIFT_ANGLE = 50
 # Bool for driving with pallet
 driving_with_pallet = False
 
-# path color
-path_color = "purple"
-# current location
-current_location = "middle circle"
+# path color and current location
+current_location = path_color = "purple"
 # clear load pallet
 clear_road = True
 
@@ -307,24 +305,50 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
     Resultat:
     Vi är redo att köra pickup pallet, med eller utan höjd
     """
-    if ultrasonic_sensor.distance() < PALET_DISTANCE + 150:
-        while "yellow line" not in classify_color(colour_sensor.rgb()):
-            robot.drive(40,20)
-        if (is_pallet_on_ground):
-            pick_up_pallet_on_ground()
-        elif(is_pallet_on_ground == False ):#elif 
-            #pick_up
-            pick_up_pallet_in_air()
-    else:
-        while "yellow line" not in classify_color(colour_sensor.rgb()):
-            robot.drive(40,20)
-        robot.straight(60)
-        while "yellow line" not in classify_color(colour_sensor.rgb()):
-            robot.drive(40,0)
-        if (is_pallet_on_ground):
-            pick_up_pallet_on_ground()
-        elif(is_pallet_on_ground == False ):
-            pick_up_pallet_in_air()
+    global current_location
+    if current_location == 'red': # Handling pallets in brown warehouse
+
+        if ultrasonic_sensor.distance() < PALET_DISTANCE + 150: # Handling pallets in first slot
+            while "yellow line" not in classify_color(colour_sensor.rgb()):
+                robot.drive(40,20)
+            if is_pallet_on_ground:
+                pick_up_pallet_on_ground()
+            else:
+                pick_up_pallet_in_air()
+
+        else: # Handling pallets in second slot
+            while "yellow line" not in classify_color(colour_sensor.rgb()):
+                robot.drive(40,20)
+            robot.straight(60)
+            while "yellow line" not in classify_color(colour_sensor.rgb()):
+                robot.drive(40,0)
+            if is_pallet_on_ground:
+                pick_up_pallet_on_ground()
+            else:
+                pick_up_pallet_in_air()
+
+    elif current_location == 'blue': # Handling pallets in blue warehouse
+
+        if ultrasonic_sensor.distance() < PALET_DISTANCE + 150: # Handling pallets in second slot
+            while "yellow line" not in classify_color(colour_sensor.rgb()):
+                robot.drive(40,-20)
+            robot.turn(-15)
+            robot.straight(60)
+            if is_pallet_on_ground:
+                pick_up_pallet_on_ground()
+            else:
+                pick_up_pallet_in_air()
+
+        else: # Handling pallets in thrid slot
+            while "yellow line" not in classify_color(colour_sensor.rgb()):
+                robot.drive(40,-20)
+            robot.straight(60)
+            while "yellow line" not in classify_color(colour_sensor.rgb()):
+                robot.drive(40,0)
+            if is_pallet_on_ground:
+                pick_up_pallet_on_ground()
+            else:
+                pick_up_pallet_in_air()
 
 def pick_up_pallet_in_air() -> None:
     Crane_motor.run_angle(CRANE_SPEED, 200)
