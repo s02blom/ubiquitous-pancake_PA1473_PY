@@ -105,8 +105,10 @@ def change_color(color_key):
     ev3.light.on(LOCATIONS[color_key])
 
     # Classify color
-def classify_color(rgb_in):
+def classify_color(rgb_in, offset = None):
     OFFSET = 11 # Offset for each color value
+    if offset is not None:
+        offset = OFFSET
     match_r = [] 
     match_g = []
     match_b = []
@@ -115,11 +117,11 @@ def classify_color(rgb_in):
     # If they are whitin the offset they are added to the matches
     for color_key in COLORS.keys():
         r, g, b = COLORS[color_key]
-        if r_in < (r + OFFSET) and r_in > (r - OFFSET):
+        if r_in < (r + offset) and r_in > (r - offset):
             match_r.append(color_key)
-        if g_in < (g + OFFSET) and g_in > (g - OFFSET):
+        if g_in < (g + offset) and g_in > (g - offset):
             match_g.append(color_key)
-        if b_in < (b + OFFSET) and b_in > (b - OFFSET):
+        if b_in < (b + offset) and b_in > (b - offset):
             match_b.append(color_key)
     matches = []
     # Checks if all the color values are within the offset if so adds the color to matches
