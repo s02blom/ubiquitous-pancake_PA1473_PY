@@ -31,13 +31,6 @@ ultrasonic_sensor = UltrasonicSensor(Port.S4)
 # Robot definition
 robot = DriveBase(Left_drive, Right_drive, wheel_diameter=47, axle_track=128) #SB. Stämmer wheel och axle för roboten vi har just nu?
 
-# drive_forward constants
-# LINE_REFLECTION = 67
-# OFF_LINE_REFLECTION = 84
-# threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
-# DESIRED_TURN_RATE = 45
-# TURN_RATE_AMPLIFIER = DESIRED_TURN_RATE / ((OFF_LINE_REFLECTION - LINE_REFLECTION) / 2)
-
 # Driving variables
 DRIVE_SPEED = 200
 DRIVE_WITH_PALLET = 150
@@ -47,15 +40,11 @@ STOP_DISTANCE = 350
 PALET_DISTANCE = 500
 GROUND_LIFT_ANGLE = 150
 
-# Bool for driving with pallet
-driving_with_pallet = False
-
-# path color
-path_color = "red"
-# current location
-current_location = "middle circle"
-# clear load pallet
+# Global variables
 clear_road = True
+driving_with_pallet = False
+path_color = "red"
+current_location = "middle circle"
 
 # Color dictionary with all the rgb values
 COLORS = {
@@ -116,8 +105,10 @@ def change_color(color_key):
     ev3.light.on(LOCATIONS[color_key])
 
     # Classify color
-def classify_color(rgb_in):
-    OFFSET = 10 # Offset for each color value
+def classify_color(rgb_in, offset = None):
+    OFFSET = 11 # Offset for each color value
+    if offset is not None:
+        offset = OFFSET
     match_r = [] 
     match_g = []
     match_b = []
@@ -126,11 +117,11 @@ def classify_color(rgb_in):
     # If they are whitin the offset they are added to the matches
     for color_key in COLORS.keys():
         r, g, b = COLORS[color_key]
-        if r_in < (r + OFFSET) and r_in > (r - OFFSET):
+        if r_in < (r + offset) and r_in > (r - offset):
             match_r.append(color_key)
-        if g_in < (g + OFFSET) and g_in > (g - OFFSET):
+        if g_in < (g + offset) and g_in > (g - offset):
             match_g.append(color_key)
-        if b_in < (b + OFFSET) and b_in > (b - OFFSET):
+        if b_in < (b + offset) and b_in > (b - offset):
             match_b.append(color_key)
     matches = []
     # Checks if all the color values are within the offset if so adds the color to matches
@@ -173,7 +164,7 @@ def select_path():
         if compare_arrays(classify_color(color), ["red", "blue" , "purple" , "green"]):
             robot.straight(50)
         else:
-            follow_line(color, COLORS['red'])
+            follow_line(color)
         color = colour_sensor.rgb()
     print("I found the path! Are you proud? :)")
     if driving_with_pallet:
@@ -206,7 +197,8 @@ def return_to_circle():
     Resultat:
     Trucken svänger ut och kör tillbaka till mitt-cirkeln.
     """
-    robot.turn(300)
+    if current_location != 'blue warehouse':
+        robot.turn(300)
     color = colour_sensor.rgb()
     # "middle circle" not in classify_color(color)
     while ("middle circle" not in classify_color(color)) and (colour_sensor.color() not in [Color.BLACK, Color.BROWN, Color.YELLOW]):
@@ -232,7 +224,6 @@ def return_to_area():
         path_color = "red"
         return_to_circle()
 
-
 def align_right():
     global driving_with_pallet
     if driving_with_pallet:
@@ -241,20 +232,6 @@ def align_right():
     elif driving_with_pallet == False:
         robot.turn(-170)
         robot.drive(0,0)
-
-
-# def drive_forward(precise = True) -> None:
-#     deviation = max(LINE_REFLECTION, colour_sensor.reflection()) - threshold
-#     turn_rate = TURN_RATE_AMPLIFIER * deviation
-#     drive_speed = 75
-#     if driving_with_pallet == True:
-#         drive_speed = 40
-#     if precise:
-#         # speed = drive_speed / (0.8 + abs(deviation) * 0.06)
-#         speed = drive_speed * max(0.1, 1 - (abs(turn_rate) / DESIRED_TURN_RATE))
-#     else:
-#         speed = drive_speed
-#     robot.drive(speed, turn_rate)
 
 def deviation_from_rgb(rgb_in, line_color):
     sum_white = sum(COLORS['white'])
@@ -366,6 +343,13 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
                 pick_up_pallet_on_ground(pallet_position)
             else:
                 pick_up_pallet_in_air(pallet_position)
+        
+        # After pickup un blue warehouse, turn out and drive to the correct side of the line
+        robot.turn(-240)
+        while not compare_arrays(LINE_COLORS, classify_color(colour_sensor.rgb())):
+            robot.drive(100, 20)
+        robot.straight(70)
+
     elif path_color == "green":
         current_location = "pickup and delivery"
         # Sväng vänster ställ ner pallet sväng tillbaka och kör ut igen
