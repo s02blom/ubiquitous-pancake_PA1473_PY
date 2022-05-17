@@ -324,13 +324,16 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
         if ultrasonic_sensor.distance() < PALET_DISTANCE + 150: # Handling pallets in second slot
             pallet_position = 1
             while "yellow line" not in classify_color(colour_sensor.rgb()):
-                robot.drive(40,-20)
+                robot.drive(40, -20)
             robot.turn(-15)
             robot.straight(60)
             if is_pallet_on_ground:
                 pick_up_pallet_on_ground(pallet_position)
             else:
                 pick_up_pallet_in_air(pallet_position)
+            robot.turn(240)
+            while 'blue' not in classify_color(colour_sensor.rgb()):
+                robot.drive(-100, 0)
 
         else: # Handling pallets in thrid slot
             pallet_position = 2
@@ -343,12 +346,10 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
                 pick_up_pallet_on_ground(pallet_position)
             else:
                 pick_up_pallet_in_air(pallet_position)
-        
-        # After pickup un blue warehouse, turn out and drive to the correct side of the line
-        robot.turn(-240)
-        while not compare_arrays(LINE_COLORS, classify_color(colour_sensor.rgb())):
-            robot.drive(100, 20)
-        robot.straight(70)
+            robot.turn(240)
+            while 'blue' not in classify_color(colour_sensor.rgb()):
+                robot.drive(100, 0)
+            robot.straight(70)
 
     elif path_color == "green":
         current_location = "pickup and delivery"
