@@ -107,7 +107,7 @@ def change_color(color_key):
     # Classify color
 def classify_color(rgb_in, offset = None):
     OFFSET = 11 # Offset for each color value
-    if offset is not None:
+    if offset is None:
         offset = OFFSET
     match_r = [] 
     match_g = []
@@ -200,8 +200,7 @@ def return_to_circle():
     if current_location != 'blue warehouse':
         robot.turn(300)
     color = colour_sensor.rgb()
-    # "middle circle" not in classify_color(color)
-    while ("middle circle" not in classify_color(color)) and (colour_sensor.color() not in [Color.BLACK, Color.BROWN, Color.YELLOW]):
+    while ("middle circle" not in classify_color(color,25)):
         follow_line(color)
         color = colour_sensor.rgb()
     align_right()
@@ -227,7 +226,8 @@ def return_to_area():
 def align_right():
     global driving_with_pallet
     if driving_with_pallet:
-        robot.turn(-400)
+        robot.straight(-100)
+        robot.turn(-270)
         robot.drive(0, 0)
     elif driving_with_pallet == False:
         robot.turn(-170)
@@ -295,6 +295,7 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
     Vi är redo att köra pickup pallet, med eller utan höjd
     """
     global current_location
+    global driving_with_pallet
     pallet_position = 1
     if current_location == 'red': # Handling pallets in brown warehouse
         current_location = "red warehouse"
@@ -353,6 +354,8 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
 
     elif path_color == "green":
         current_location = "pickup and delivery"
+        wait(5000)
+        driving_with_pallet = False
         # Sväng vänster ställ ner pallet sväng tillbaka och kör ut igen
 
 def pick_up_pallet_in_air(pallet_position) -> None:
@@ -442,7 +445,7 @@ with open('RGB.txt') as f:
 COLORS = json.loads(data)
 print(COLORS)
 
-# _thread.start_new_thread(collision_check,(),)
+_thread.start_new_thread(collision_check,(),)
 _thread.start_new_thread(main,(),)
 _thread.start_new_thread(get_color,(),)
 
