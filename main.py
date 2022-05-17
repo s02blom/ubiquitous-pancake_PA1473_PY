@@ -31,13 +31,6 @@ ultrasonic_sensor = UltrasonicSensor(Port.S4)
 # Robot definition
 robot = DriveBase(Left_drive, Right_drive, wheel_diameter=47, axle_track=128) #SB. Stämmer wheel och axle för roboten vi har just nu?
 
-# drive_forward constants
-# LINE_REFLECTION = 67
-# OFF_LINE_REFLECTION = 84
-# threshold = (LINE_REFLECTION + OFF_LINE_REFLECTION) / 2
-# DESIRED_TURN_RATE = 45
-# TURN_RATE_AMPLIFIER = DESIRED_TURN_RATE / ((OFF_LINE_REFLECTION - LINE_REFLECTION) / 2)
-
 # Driving variables
 DRIVE_SPEED = 250
 DRIVE_WITH_PALLET = 150
@@ -47,15 +40,11 @@ STOP_DISTANCE = 350
 PALET_DISTANCE = 500
 GROUND_LIFT_ANGLE = 100
 
-# Bool for driving with pallet
-driving_with_pallet = False
-
-# path color
-path_color = "red"
-# current location
-current_location = "middle circle"
-# clear load pallet
+# Global variables
 clear_road = True
+driving_with_pallet = False
+path_color = "red"
+current_location = "middle circle"
 
 # Color dictionary with all the rgb values
 COLORS = {
@@ -172,7 +161,7 @@ def select_path():
         if compare_arrays(classify_color(color), ["red", "blue" , "purple" , "green"]):
             robot.straight(50)
         else:
-            follow_line(color, COLORS['red'])
+            follow_line(color)
         color = colour_sensor.rgb()
     print("I found the path! Are you proud? :)")
     align_right()
@@ -204,7 +193,8 @@ def return_to_circle():
     Resultat:
     Trucken svänger ut och kör tillbaka till mitt-cirkeln.
     """
-    robot.turn(300)
+    if current_location != 'blue warehouse':
+        robot.turn(300)
     color = colour_sensor.rgb()
     while "middle circle" not in classify_color(color):
         follow_line(color)
@@ -230,7 +220,6 @@ def return_to_area():
         path_color = "red"
         return_to_circle()
 
-
 def align_right():
     global driving_with_pallet
     if driving_with_pallet:
@@ -239,20 +228,6 @@ def align_right():
     elif driving_with_pallet == False:
         robot.turn(-200)
         robot.drive(0,0)
-
-
-# def drive_forward(precise = True) -> None:
-#     deviation = max(LINE_REFLECTION, colour_sensor.reflection()) - threshold
-#     turn_rate = TURN_RATE_AMPLIFIER * deviation
-#     drive_speed = 75
-#     if driving_with_pallet == True:
-#         drive_speed = 40
-#     if precise:
-#         # speed = drive_speed / (0.8 + abs(deviation) * 0.06)
-#         speed = drive_speed * max(0.1, 1 - (abs(turn_rate) / DESIRED_TURN_RATE))
-#     else:
-#         speed = drive_speed
-#     robot.drive(speed, turn_rate)
 
 def deviation_from_rgb(rgb_in, line_color):
     sum_white = sum(COLORS['white'])
@@ -359,6 +334,13 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
                 pick_up_pallet_on_ground()
             else:
                 pick_up_pallet_in_air()
+        
+        # After pickup un blue warehouse, turn out and drive to the correct side of the line
+        robot.turn(-240)
+        while not compare_arrays(LINE_COLORS, classify_color(colour_sensor.rgb())):
+            robot.drive(100, 20)
+        robot.straight(70)
+
     elif path_color == "green":
         current_location = "pickup and delivery"
         # Sväng vänster ställ ner pallet sväng tillbaka och kör ut igen
