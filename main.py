@@ -237,12 +237,24 @@ def align_right():
         robot.drive(0,0)
 
 def deviation_from_rgb(rgb_in, line_color):
-    sum_white = sum(COLORS['white'])
-    sum_line = sum(line_color)
-    threshold = (sum_white + sum_line) / 2
-    sum_in = sum(rgb_in)
-    deviation = sum_in - threshold
+    w_r, w_g, w_b = COLORS['white']
+    l_r, l_g, l_b = line_color
+    threshold_r = (w_r + l_r) / 2
+    threshold_g = (w_g + l_g) / 2
+    threshold_b = (w_b + l_b) / 2
+    r_in, g_in, b_in = rgb_in
+    deviation_r = r_in - threshold_r
+    deviation_g = g_in - threshold_g
+    deviation_b = b_in - threshold_b
+    deviation = deviation_r + deviation_g + deviation_b 
     return deviation
+
+    # sum_white = sum(COLORS['white'])
+    # sum_line = sum(line_color)
+    # threshold = (sum_white + sum_line) / 2
+    # sum_in = sum(rgb_in)
+    # deviation = sum_in - threshold
+    # return deviation
 
 def follow_line(rgb_in, line_color = COLORS['red']) -> None:
     global clear_road
