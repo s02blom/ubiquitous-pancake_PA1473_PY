@@ -23,6 +23,7 @@ Left_drive = Motor(Port.C, positive_direction=Direction.COUNTERCLOCKWISE)
 Right_drive = Motor(Port.B, positive_direction=Direction.COUNTERCLOCKWISE)
 Crane_motor = Motor(Port.A)
 
+
 # Sensor definitions
 touch_sensor = TouchSensor(Port.S1)
 colour_sensor = ColorSensor(Port.S3)
@@ -34,7 +35,7 @@ robot = DriveBase(Left_drive, Right_drive, wheel_diameter=47, axle_track=128) #S
 # Driving variables
 DRIVE_SPEED = 200
 DRIVE_WITH_PALLET = 150
-TURN_RATE_AMPLIFIER = 1
+TURN_RATE_AMPLIFIER = 1 # 1 för robot 8, 1.8 för robot 4
 CRANE_SPEED = 200
 STOP_DISTANCE = 350
 PALET_DISTANCE = 500
@@ -45,6 +46,7 @@ clear_road = True
 driving_with_pallet = False
 path_color = "red"
 current_location = "middle circle"
+emergency_mode = False
 
 # Color dictionary with all the rgb values
 COLORS = {
@@ -106,7 +108,7 @@ def change_color(color_key):
 
     # Classify color
 def classify_color(rgb_in, offset = None):
-    OFFSET = 11 # Offset for each color value
+    OFFSET = 7 # Offset for each color value
     if offset is None:
         offset = OFFSET
     match_r = [] 
@@ -162,9 +164,9 @@ def select_path():
     #print (classify_color(color))
     while path_color not in classify_color(color):
         if compare_arrays(classify_color(color), ["red", "blue" , "purple" , "green"]):
-            robot.straight(50)
+            robot.straight(70)
         else:
-            follow_line(color)
+            follow_line(color,COLORS["middle circle"])
         color = colour_sensor.rgb()
     print("I found the path! Are you proud? :)")
     if driving_with_pallet:
@@ -199,9 +201,10 @@ def return_to_circle():
     """
     if current_location != 'blue warehouse':
         robot.turn(300)
+    ev3.speaker.say("Leaving " +  current_location)
     color = colour_sensor.rgb()
-    while ("middle circle" not in classify_color(color,25)):
-        follow_line(color)
+    while ("middle circle" not in classify_color(color,15)):
+        follow_line(color,COLORS[path_color])
         color = colour_sensor.rgb()
     align_right()
     current_location = 'middle circle'
@@ -244,31 +247,34 @@ def deviation_from_rgb(rgb_in, line_color):
 def follow_line(rgb_in, line_color = COLORS['red']) -> None:
     global clear_road
     global driving_with_pallet
-    deviation_turn_offset = 6
-    if clear_road:
-        deviation = deviation_from_rgb(rgb_in, line_color)
-        sum_white = sum(COLORS['white'])
-        sum_line = sum(line_color)
-        threshold = (sum_white - sum_line) / 2
-        turn_rate = TURN_RATE_AMPLIFIER * deviation
-        drive_speed = DRIVE_SPEED
-        if driving_with_pallet == True:
-            drive_speed = DRIVE_WITH_PALLET
-        speed = drive_speed / (0.9 + abs(deviation) * 0.01)
-        if (abs(deviation) + deviation_turn_offset >= threshold) and (deviation < 0):
-            # speed = -speed
-            robot.drive(0,0)
-            turn_rate = 0
-            drive_speed = 0
-            robot.turn(-25)
-            deviation = deviation_from_rgb(colour_sensor.rgb(), line_color)
-            if (abs(deviation) + deviation_turn_offset >= threshold) and (deviation < 0) and (colour_sensor.color() != Color.BLACK):
-                robot.turn(-45)
-                robot.straight(-60)
-        else:
-            robot.drive(speed, turn_rate)
+    deviation_turn_offset = 1
+    if emergency_mode:
+        pass
     else:
-        robot.drive(0,0)
+        if clear_road:
+            deviation = deviation_from_rgb(rgb_in, line_color)
+            sum_white = sum(COLORS['white'])
+            sum_line = sum(line_color)
+            threshold = (sum_white - sum_line) / 2
+            turn_rate = TURN_RATE_AMPLIFIER * deviation
+            drive_speed = DRIVE_SPEED
+            if driving_with_pallet == True:
+                drive_speed = DRIVE_WITH_PALLET
+            speed = drive_speed / (0.9 + abs(deviation) * 0.01)
+            if (abs(deviation) + deviation_turn_offset >= threshold) and (deviation < 0):
+                # speed = -speed
+                robot.drive(0,0)
+                turn_rate = 0
+                drive_speed = 0
+                robot.turn(-25)
+                deviation = deviation_from_rgb(colour_sensor.rgb(), line_color)
+                if (abs(deviation) + deviation_turn_offset >= threshold) and (deviation < 0) and (colour_sensor.color() != Color.BLACK):
+                    robot.turn(-45)
+                    robot.straight(-60)
+            else:
+                robot.drive(speed, turn_rate)
+        else:
+            robot.drive(0,0)
 
 def follow_color(color_array = LINE_COLORS):
     global clear_road
@@ -303,6 +309,7 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
             pallet_position = 1
             while "yellow line" not in classify_color(colour_sensor.rgb()):
                 robot.drive(40,20)
+            robot.drive(0,0)
             if is_pallet_on_ground:
                 pick_up_pallet_on_ground(pallet_position)
             else:
@@ -312,6 +319,7 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
             pallet_position = 2
             while "yellow line" not in classify_color(colour_sensor.rgb()):
                 robot.drive(40,20)
+            robot.drive(0,0)
             robot.straight(60)
             while "yellow line" not in classify_color(colour_sensor.rgb()):
                 robot.drive(40,0)
@@ -326,6 +334,7 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
             pallet_position = 1
             while "yellow line" not in classify_color(colour_sensor.rgb()):
                 robot.drive(40, -20)
+            robot.drive(0,0)
             robot.turn(-15)
             robot.straight(60)
             if is_pallet_on_ground:
@@ -340,9 +349,11 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
             pallet_position = 2
             while "yellow line" not in classify_color(colour_sensor.rgb()):
                 robot.drive(40,-20)
+            robot.drive(0,0)
             robot.straight(60)
             while "yellow line" not in classify_color(colour_sensor.rgb()):
                 robot.drive(40,0)
+            robot.drive(0,0)
             if is_pallet_on_ground:
                 pick_up_pallet_on_ground(pallet_position)
             else:
@@ -351,8 +362,9 @@ def find_pallet(is_pallet_on_ground: bool) -> None:
             while 'blue' not in classify_color(colour_sensor.rgb()):
                 robot.drive(100, 0)
             robot.straight(70)
+        
 
-    elif path_color == "green":
+    elif current_location == "green":
         current_location = "pickup and delivery"
         wait(5000)
         driving_with_pallet = False
@@ -393,7 +405,7 @@ def pick_up_pallet_on_ground(pallet_position) -> None:
     else:
         print_on_screen("picking up")
         Crane_motor.reset_angle(0)
-        Crane_motor.run_angle(CRANE_SPEED, GROUND_LIFT_ANGLE)
+        Crane_motor.run_target(CRANE_SPEED, GROUND_LIFT_ANGLE)
         driving_with_pallet = True
     time_to_back_out = drive_forward_stop_time -  drive_forward_time
     distance_to_back_out = (time_to_back_out * drive_speed_crawl) /1000 #(ms *mm/s)/m
@@ -402,7 +414,6 @@ def pick_up_pallet_on_ground(pallet_position) -> None:
         robot.straight(-distance_to_back_out)
     elif pallet_position == 2:
         robot.straight(-distance_to_back_out * 2)
-    #Sväng om?
 
 def reset_crane():
     Crane_motor.run_until_stalled(CRANE_SPEED)
@@ -431,10 +442,26 @@ def get_color():
 def collision_check():
     global clear_road
     while True:
-        if (ultrasonic_sensor.distance() < STOP_DISTANCE) and ultrasonic_sensor.presence() == True:
+        if (ultrasonic_sensor.distance() < STOP_DISTANCE) and (driving_with_pallet == False):
             clear_road = False
         else:
             clear_road = True
+
+def check_emergency():
+    global driving_with_pallet
+    global emergency_mode
+    while True:
+        if (driving_with_pallet == True) and (touch_sensor.pressed() == False) and (emergency_mode == False):
+            emergency_mode = True
+            robot.turn(120)
+            robot.straight(-400)
+            print_on_screen("HELP THERE IS A PALLET IN MY WAY")
+   
+        elif (driving_with_pallet == True) and (touch_sensor.pressed() == True) and (emergency_mode == True):
+            robot.straight(360)
+            robot.turn(-120)
+            print_on_screen("LETS GOOO")
+            emergency_mode = False
 
 # open_file_colors(calibrate_colors(COLORS))
 
@@ -445,9 +472,12 @@ with open('RGB.txt') as f:
 COLORS = json.loads(data)
 print(COLORS)
 
-_thread.start_new_thread(collision_check,(),)
-_thread.start_new_thread(main,(),)
-_thread.start_new_thread(get_color,(),)
+# _thread.start_new_thread(collision_check,(),)
+#_thread.start_new_thread(main,(),)
+#_thread.start_new_thread(get_color,(),)
+#_thread.start_new_thread(check_emergency,(),)
 
 while True:
+    print(colour_sensor.rgb())
+    wait(200)
     pass
